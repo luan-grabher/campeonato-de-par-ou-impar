@@ -3,6 +3,8 @@
 import { useMemo, useState } from 'react';
 
 const MAX_NUMBER = 10;
+const INITIAL_FEEDBACK = 'Configure o jogador e inicie a partida.';
+const OPPONENT_NAME = 'IA Aleatória';
 const INITIAL_SELECTION = {
   number: '5',
   parity: 'par',
@@ -29,14 +31,12 @@ export default function QuickMatchGame() {
   const [history, setHistory] = useState([]);
   const [selection, setSelection] = useState(INITIAL_SELECTION);
   const [winner, setWinner] = useState('');
-  const [feedback, setFeedback] = useState('Configure o jogador e inicie a partida.');
-
-  const opponentName = 'IA Aleatória';
+  const [feedback, setFeedback] = useState(INITIAL_FEEDBACK);
 
   const isPlaying = phase === 'playing';
   const statusLabel = useMemo(() => {
     if (phase === 'finished') {
-      return winner === playerName ? 'Você venceu a melhor de 3' : `${opponentName} venceu a melhor de 3`;
+      return winner === playerName ? 'Você venceu a melhor de 3' : `${OPPONENT_NAME} venceu a melhor de 3`;
     }
 
     if (phase === 'playing') {
@@ -44,7 +44,7 @@ export default function QuickMatchGame() {
     }
 
     return 'Pronto para começar';
-  }, [opponentName, phase, playerName, round, winner]);
+  }, [phase, playerName, round, winner]);
 
   function resetMatch(startPhase = 'idle') {
     setPhase(startPhase);
@@ -53,7 +53,7 @@ export default function QuickMatchGame() {
     setOpponentScore(0);
     setHistory([]);
     setWinner('');
-    setFeedback('Configure o jogador e inicie a partida.');
+    setFeedback(INITIAL_FEEDBACK);
     setSelection(INITIAL_SELECTION);
   }
 
@@ -66,11 +66,7 @@ export default function QuickMatchGame() {
     setOpponentScore(0);
     setHistory([]);
     setWinner('');
-    setFeedback(`${normalizedName} entrou na fila e encontrou ${opponentName}.`);
-    setSelection((current) => ({
-      ...current,
-      number: current.number || INITIAL_SELECTION.number,
-    }));
+    setFeedback(`${normalizedName} entrou na fila e encontrou ${OPPONENT_NAME}.`);
   }
 
   function playRound(event) {
@@ -83,7 +79,7 @@ export default function QuickMatchGame() {
     const playerNumber = Number(selection.number);
 
     if (Number.isNaN(playerNumber) || playerNumber < 0 || playerNumber > MAX_NUMBER) {
-      setFeedback('Escolha um número entre 0 e 10.');
+      setFeedback('Escolha um número de 0 a 10.');
       return;
     }
 
@@ -93,7 +89,7 @@ export default function QuickMatchGame() {
     const didWin = selection.parity === actualParity;
     const playerTotal = playerScore + (didWin ? 1 : 0);
     const opponentTotal = opponentScore + (didWin ? 0 : 1);
-    const roundWinner = didWin ? playerName : opponentName;
+    const roundWinner = didWin ? playerName : OPPONENT_NAME;
     const roundSummary = {
       round,
       playerNumber,
@@ -104,26 +100,22 @@ export default function QuickMatchGame() {
       winner: roundWinner,
     };
     const nextRound = round + 1;
-    const matchFinished = playerTotal === 2 || opponentTotal === 2 || round === 3;
+    const matchFinished = playerTotal === 2 || opponentTotal === 2;
 
     setHistory((current) => [...current, roundSummary]);
     setPlayerScore(playerTotal);
     setOpponentScore(opponentTotal);
     setFeedback(
-      `Rodada ${round}: você jogou ${playerNumber}, ${opponentName} jogou ${opponentNumber}. Total ${total} (${parityLabel(actualParity)}). ${roundWinner} venceu.`
+      `Rodada ${round}: você jogou ${playerNumber}, ${OPPONENT_NAME} jogou ${opponentNumber}. Total ${total} (${parityLabel(actualParity)}). ${roundWinner} venceu.`
     );
 
     if (matchFinished) {
       setPhase('finished');
-      setWinner(didWin ? playerName : opponentName);
+      setWinner(playerTotal > opponentTotal ? playerName : OPPONENT_NAME);
       return;
     }
 
     setRound(nextRound);
-    setSelection((current) => ({
-      ...current,
-      number: String((playerNumber + 1) % (MAX_NUMBER + 1)),
-    }));
   }
 
   return (
@@ -140,7 +132,7 @@ export default function QuickMatchGame() {
         <div className="status-line">
           <span className="badge">{statusLabel}</span>
           <span className="badge">{playerName}</span>
-          <span className="badge">{opponentName}</span>
+          <span className="badge">{OPPONENT_NAME}</span>
         </div>
 
         <div className="scoreboard">
