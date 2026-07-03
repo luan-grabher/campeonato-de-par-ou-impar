@@ -138,8 +138,7 @@ Ranking:
 
 ### Futuro: apostas em dinheiro
 - Exemplo: R$10 + R$10, taxa da plataforma e prêmio ao vencedor.
-- Percentual e cálculo da taxa serão definidos na fase de implementação, junto com a validação jurídica/regulatória.
-- Implementação condicionada à validação jurídica/regulatória.
+- Implementação e definição de taxas condicionadas à validação jurídica/regulatória.
 
 ### Alternativa inicial
 - Moedas virtuais para:
