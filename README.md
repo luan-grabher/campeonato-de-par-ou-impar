@@ -64,7 +64,7 @@ Mostrar estatísticas completas do adversário durante a partida:
 - taxa de repetição
 
 ### Relâmpago
-- Tempo de jogada curto (3s ou 5s).
+- Tempo de jogada curto (configurável entre 3s e 5s; padrão inicial sugerido: 5s).
 - Sem escolha no tempo:
   - derrota automática, ou
   - escolha aleatória
@@ -116,7 +116,14 @@ Perfil do jogador:
 Ranking:
 - Sistema Elo
 - Ligas: Bronze, Prata, Ouro, Platina, Diamante, Mestre, Lendário
-- Progressão por faixas de Elo configuráveis (exemplo inicial: Bronze 0–999, Prata 1000–1199, Ouro 1200–1399, Platina 1400–1599, Diamante 1600–1799, Mestre 1800–1999, Lendário 2000+)
+- Progressão por faixas de Elo configuráveis (exemplo inicial):
+  - Bronze: 0–999
+  - Prata: 1000–1199
+  - Ouro: 1200–1399
+  - Platina: 1400–1599
+  - Diamante: 1600–1799
+  - Mestre: 1800–1999
+  - Lendário: 2000+
 - Temporadas com reset parcial de ranking
 
 ## Sistema social
@@ -131,6 +138,7 @@ Ranking:
 
 ### Futuro: apostas em dinheiro
 - Exemplo: R$10 + R$10, taxa da plataforma e prêmio ao vencedor.
+- Percentual e cálculo da taxa serão definidos na fase de implementação, junto com a validação jurídica/regulatória.
 - Implementação condicionada à validação jurídica/regulatória.
 
 ### Alternativa inicial
