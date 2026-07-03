@@ -1,0 +1,31 @@
+{
+  "name": "campeonato-de-par-ou-impar",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Plataforma competitiva de Par ou \u00cdmpar no navegador, inspirada no meme do campeonato online.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/luan-grabher/campeonato-de-par-ou-impar.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/luan-grabher/campeonato-de-par-ou-impar/issues"
+  },
+  "homepage": "https://github.com/luan-grabher/campeonato-de-par-ou-impar#readme",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.110.0",
+    "next": "^16.2.10",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
+  },
+  "overrides": {
+    "postcss": "8.5.16"
+  }
+}
