@@ -44,7 +44,7 @@ export default function LoginPage() {
           return;
         }
 
-        setFeedback(error ? `Falha no Supabase: ${error.message}. Entrando no modo local.` : 'Supabase indisponível. Entrando no modo local.');
+        setFeedback('Não foi possível autenticar no Supabase. Entrando no modo local.');
       }
 
       signInLocal({

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
-import { createRoom, getCurrentUser, joinRoom, leaveRoom, useMvpState } from '../../../lib/mvp-store';
+import { createRoom, getCurrentUser, getRoomByCode, joinRoom, leaveRoom, useMvpState } from '../../../lib/mvp-store';
 
 export default function PrivateRoomsPage() {
   const state = useMvpState();
@@ -34,9 +34,17 @@ export default function PrivateRoomsPage() {
       return;
     }
 
+    const room = getRoomByCode(state, pendingInviteCode);
+    if (!room) {
+      setFeedback(`Sala ${pendingInviteCode} não encontrada.`);
+      setPendingInviteCode('');
+      return;
+    }
+
     joinRoom(pendingInviteCode);
+    setFeedback(`Você entrou na sala ${pendingInviteCode}.`);
     setPendingInviteCode('');
-  }, [currentUser?.id, pendingInviteCode]);
+  }, [currentUser?.id, pendingInviteCode, state]);
 
   const myRooms = useMemo(
     () => state.rooms.filter((room) => room.hostId === currentUser?.id || room.opponentId === currentUser?.id),
@@ -45,8 +53,12 @@ export default function PrivateRoomsPage() {
 
   async function copyRoomLink(code) {
     const link = `${window.location.origin}/mvp/salas-privadas?room=${code}`;
-    await navigator.clipboard.writeText(link);
-    setFeedback(`Link da sala ${code} copiado.`);
+    try {
+      await navigator.clipboard.writeText(link);
+      setFeedback(`Link da sala ${code} copiado.`);
+    } catch {
+      setFeedback('Não foi possível copiar o link. Copie manualmente: ' + link);
+    }
   }
 
   function handleCreateRoom(event) {
@@ -77,7 +89,7 @@ export default function PrivateRoomsPage() {
     }
 
     joinRoom(joinCode);
-    setFeedback(`Tentativa de entrada enviada para ${joinCode.toUpperCase() || '—'}.`);
+    setFeedback(`Tentativa de entrada enviada para ${(joinCode || '').trim().toUpperCase() || '—'}.`);
   }
 
   function handleLeaveRoom(code) {

@@ -90,9 +90,9 @@ export default function QuickMatchGame() {
       return;
     }
 
-    const playerNumber = Number(selection.number);
+    const playerNumber = selection.number === '' ? NaN : Number.parseInt(selection.number, 10);
 
-    if (Number.isNaN(playerNumber) || playerNumber < 0 || playerNumber > MAX_NUMBER) {
+    if (!Number.isInteger(playerNumber) || playerNumber < 0 || playerNumber > MAX_NUMBER) {
       setFeedback('Escolha um número de 0 a 10.');
       return;
     }
