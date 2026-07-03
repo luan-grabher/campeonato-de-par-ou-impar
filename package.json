@@ -20,7 +20,7 @@
   },
   "homepage": "https://github.com/luan-grabher/campeonato-de-par-ou-impar#readme",
   "dependencies": {
-    "@supabase/supabase-js": "^2.110.0",
+    "@supabase/supabase-js": "^2.100.0",
     "next": "^16.2.10",
     "react": "^19.2.7",
     "react-dom": "^19.2.7"
@@ -29,7 +29,7 @@
     "postcss": "8.5.16"
   },
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=20.9.0"
   },
   "x-dependency-notes": {
     "postcss": "Pinned to 8.5.16 because npm audit flagged the transitive copy shipped with Next 16.2.10; keep the override until Next ships a fixed release."
