@@ -51,7 +51,7 @@ Plataforma competitiva de **Par ou Ímpar** no navegador (desktop e mobile), ins
   - definição do vencedor
 
 ### Intervalos de números
-- Tradicional: 1 e 2.
+- Tradicional: 1 a 2.
 - Expandido: 0 a 10.
 - Futuro: 0 a 20 e intervalos personalizados.
 
@@ -75,6 +75,7 @@ Mostrar estatísticas completas do adversário durante a partida:
 
 ### Caos
 - Intervalo permitido muda a cada rodada automaticamente.
+- As faixas são sorteadas de forma imprevisível (ex.: 0–3, 4–8, 0–20, 2–6).
 
 ### Sobrevivência
 - Fila contínua.
@@ -83,7 +84,7 @@ Mostrar estatísticas completas do adversário durante a partida:
 
 ## IA para fallback de matchmaking
 
-Quando não houver jogadores disponíveis (sem partidas valendo dinheiro):
+Quando não houver jogadores disponíveis em modos sem premiação financeira (ver seção **Economia e premiações**):
 
 - IA Aleatória
 - IA Teimosa
@@ -115,6 +116,7 @@ Perfil do jogador:
 Ranking:
 - Sistema Elo
 - Ligas: Bronze, Prata, Ouro, Platina, Diamante, Mestre, Lendário
+- Progressão por faixas de Elo configuráveis (exemplo inicial: Bronze 0–999, Prata 1000–1199, Ouro 1200–1399, Platina 1400–1599, Diamante 1600–1799, Mestre 1800–1999, Lendário 2000+)
 - Temporadas com reset parcial de ranking
 
 ## Sistema social
