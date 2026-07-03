@@ -27,5 +27,11 @@
   },
   "overrides": {
     "postcss": "8.5.16"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "x-dependency-notes": {
+    "postcss": "Pinned to 8.5.16 because npm audit flagged the transitive copy shipped with Next 16.2.10; keep the override until Next ships a fixed release."
   }
 }
