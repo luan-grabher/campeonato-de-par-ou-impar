@@ -6,9 +6,9 @@ export default function MvpPage() {
     <section className="section">
       <div className="stack">
         <span className="badge primary">Escopo do MVP</span>
-        <h1>Estrutura inicial do produto</h1>
+        <h1>Produto pronto para jogar</h1>
         <p className="muted">
-          O MVP concentra login, partida rápida jogável, salas privadas, ranking Elo, estatísticas básicas e IA Aleatória.
+          O MVP concentra login, partida rápida, salas privadas, ranking Elo, estatísticas básicas e IA Aleatória.
         </p>
       </div>
 

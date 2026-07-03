@@ -1,6 +1,7 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { createLocalEmail, getCurrentUser, getCurrentUserStats, recordQuickMatch, signInLocal, useMvpState } from '../../../lib/mvp-store';
 
 const MAX_NUMBER = 10;
 const INITIAL_FEEDBACK = 'Configure o jogador e inicie a partida.';
@@ -23,7 +24,10 @@ function randomNumber() {
 }
 
 export default function QuickMatchGame() {
-  const [playerName, setPlayerName] = useState('Jogador');
+  const state = useMvpState();
+  const currentUser = getCurrentUser(state);
+  const stats = getCurrentUserStats(state);
+  const [playerName, setPlayerName] = useState(currentUser?.name || 'Jogador');
   const [phase, setPhase] = useState('idle');
   const [round, setRound] = useState(1);
   const [playerScore, setPlayerScore] = useState(0);
@@ -32,6 +36,12 @@ export default function QuickMatchGame() {
   const [selection, setSelection] = useState(INITIAL_SELECTION);
   const [winner, setWinner] = useState('');
   const [feedback, setFeedback] = useState(INITIAL_FEEDBACK);
+
+  useEffect(() => {
+    if (currentUser?.name) {
+      setPlayerName(currentUser.name);
+    }
+  }, [currentUser?.id, currentUser?.name]);
 
   const isPlaying = phase === 'playing';
   const statusLabel = useMemo(() => {
@@ -60,6 +70,10 @@ export default function QuickMatchGame() {
   function startMatch() {
     const normalizedName = playerName.trim() || 'Jogador';
     setPlayerName(normalizedName);
+    signInLocal({
+      name: normalizedName,
+      email: currentUser?.email || createLocalEmail(normalizedName),
+    });
     setPhase('playing');
     setRound(1);
     setPlayerScore(0);
@@ -110,6 +124,16 @@ export default function QuickMatchGame() {
     );
 
     if (matchFinished) {
+      recordQuickMatch({
+        playerName,
+        opponentName: OPPONENT_NAME,
+        playerNumber,
+        opponentNumber,
+        parity: actualParity,
+        total,
+        result: playerTotal > opponentTotal ? 'win' : 'loss',
+        roundsPlayed: round,
+      });
       setPhase('finished');
       setWinner(playerTotal > opponentTotal ? playerName : OPPONENT_NAME);
       return;
@@ -224,6 +248,29 @@ export default function QuickMatchGame() {
             </button>
           </div>
         ) : null}
+
+        <div className="grid" style={{ marginTop: 4 }}>
+          <article className="card">
+            <h3>Seu desempenho</h3>
+            <p className="muted">
+              Elo {stats.elo} · {stats.wins} vitórias · {stats.losses} derrotas · sequência {stats.streak}
+            </p>
+          </article>
+          <article className="card">
+            <h3>Partidas recentes</h3>
+            {state.matches.length === 0 ? (
+              <p className="muted">Nenhuma partida registrada ainda.</p>
+            ) : (
+              <ul className="list">
+                {state.matches.slice(0, 3).map((match) => (
+                  <li key={match.id}>
+                    {match.result === 'win' ? 'Vitória' : 'Derrota'} contra {match.opponentName}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </article>
+        </div>
       </article>
 
       <article className="panel timeline">

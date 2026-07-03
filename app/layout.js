@@ -27,7 +27,7 @@ export default function RootLayout({ children }) {
           </header>
           <main>{children}</main>
           <footer className="footer">
-            Construído como estrutura inicial do MVP com Next.js, React e Supabase Auth.
+            Construído como MVP jogável com Next.js, React e Supabase Auth opcional.
           </footer>
         </div>
       </body>
