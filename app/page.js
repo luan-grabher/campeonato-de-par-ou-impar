@@ -8,9 +8,9 @@ export default function HomePage() {
         <div className="hero-grid">
           <div className="stack">
             <span className="badge primary">MVP em construção</span>
-            <h1>O campeonato de Par ou Ímpar online finalmente existe.</h1>
+            <h1>O campeonato de Par ou Ímpar online finalmente tem uma partida jogável.</h1>
             <p className="muted">
-              Estrutura inicial real do app para cadastro, partidas rápidas, salas privadas e ranking Elo.
+              Estrutura inicial do app para cadastro, partidas rápidas, salas privadas e ranking Elo.
             </p>
             <div className="actions">
               <Link className="button primary" href="/mvp">
