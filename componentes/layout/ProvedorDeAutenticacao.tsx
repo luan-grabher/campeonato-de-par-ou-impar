@@ -128,6 +128,7 @@ export default function ProvedorDeAutenticacao({
     const { error } = await supabase.auth.signOut()
     if (error) throw error
     setJogador(null)
+    window.location.href = '/'
   }
 
   return (

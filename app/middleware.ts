@@ -8,7 +8,14 @@ const ROTAS_PROTEGIDAS = [
   '/campeonatos',
   '/salas-privadas',
   '/amigos',
-  '/painel-logado',
+  '/conquistas',
+  '/loja',
+  '/inventario',
+  '/partidas',
+  '/jogar',
+  '/perfil',
+  '/modo-sobrevivencia',
+  '/configuracoes',
 ]
 
 // Rotas de auth (login/cadastro) — redirecionar para / se já logado
