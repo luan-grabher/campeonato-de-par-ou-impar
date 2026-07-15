@@ -30,13 +30,32 @@ O objetivo é oferecer partidas extremamente rápidas, competitivas e sociais, c
 
 # Sistema de Partidas
 
+## Partida Competitiva (Campeonato)
+
+Modo principal da plataforma. Partidas ranqueadas com sistema Elo, buscando adversário do mesmo nível automaticamente.
+
+Regras:
+
+- Melhor de 3
+- Intervalo 0–10
+- Partidas valem pontos de Elo
+- Exige cadastro e login
+
+No futuro, o campeonato também terá formato mata-mata com 8, 16, 32 ou 64 jogadores, com oitavas, quartas, semifinal e final, além de campeonatos automáticos em horários específicos.
+
+---
+
 ## Partida Rápida
 
-Encontrar um adversário automaticamente.
+Partidas casuais sem valer Elo. Serve para aquecer, testar estratégias ou jogar sem compromisso.
 
-Formato:
+Regras:
 
-- Melhor de 3.
+- Melhor de 3
+- Sem alteração de ranking
+- Disponível em duas modalidades:
+  - **Contra IA**: funciona sem login, nome temporário, resultado não persiste
+  - **Contra jogador real**: exige cadastro e login
 
 ---
 
@@ -52,33 +71,6 @@ Configurações:
 - Melhor de 5
 - Melhor de 7
 - Escolha do modo de jogo
-
----
-
-## Campeonatos
-
-Formato mata-mata.
-
-Exemplo:
-
-- 8 jogadores
-- 16 jogadores
-- 32 jogadores
-- 64 jogadores
-
-Estrutura:
-
-- Oitavas
-- Quartas
-- Semifinal
-- Final
-
-Regras:
-
-- Todas as partidas melhor de 3.
-- Final melhor de 5.
-
-Pode haver campeonatos automáticos em horários específicos.
 
 ---
 
@@ -402,8 +394,8 @@ Exemplos:
 
 Tela inicial
 
-- Jogar Agora
-- Campeonatos
+- **Jogar Agora** — botão principal, inicia partida competitiva ranqueada (campeonato)
+- Campeonatos — chaveamentos mata-mata
 - Ranking
 - Perfil
 - Amigos
@@ -443,7 +435,7 @@ Esse aspecto pode gerar divulgação orgânica nas redes sociais, já que muitas
 
 # Roadmap
 
-## MVP
+## Lançamento Inicial
 
 - Cadastro/Login
 - Partida rápida
