@@ -4,7 +4,7 @@
 
 Criar uma plataforma online competitiva de **Par ou Ímpar**, acessível diretamente pelo navegador (desktop e mobile), transformando um antigo meme da internet ("não posso, tenho campeonato de par ou ímpar online") em um jogo real.
 
-O objetivo é oferecer partidas extremamente rápidas, competitivas e sociais, com ranking, torneios, estatísticas, IA, modos alternativos e, futuramente, um sistema opcional de premiações.
+O objetivo é oferecer partidas extremamente rápidas, competitivas e sociais, com ranking, campeonatos, estatísticas, IA, modos alternativos e, futuramente, um sistema opcional de premiações.
 
 ---
 
@@ -55,7 +55,7 @@ Configurações:
 
 ---
 
-## Torneios
+## Campeonatos
 
 Formato mata-mata.
 
@@ -78,7 +78,7 @@ Regras:
 - Todas as partidas melhor de 3.
 - Final melhor de 5.
 
-Pode haver torneios automáticos em horários específicos.
+Pode haver campeonatos automáticos em horários específicos.
 
 ---
 
@@ -284,7 +284,7 @@ Percentual de Ímpar
 
 Tempo médio por jogada
 
-Quantidade de torneios vencidos
+Quantidade de campeonatos vencidos
 
 ---
 
@@ -389,12 +389,12 @@ Conquistas.
 Exemplos:
 
 - 100 vitórias
-- 10 torneios
+- 10 campeonatos
 - sequência de 20 vitórias
 - nunca escolher o mesmo número duas vezes
 - ganhar usando apenas números pares
 - derrotar IA Psicológica
-- vencer um torneio sem perder nenhuma rodada
+- vencer um campeonato sem perder nenhuma rodada
 
 ---
 
@@ -403,7 +403,7 @@ Exemplos:
 Tela inicial
 
 - Jogar Agora
-- Torneios
+- Campeonatos
 - Ranking
 - Perfil
 - Amigos
@@ -456,7 +456,7 @@ Esse aspecto pode gerar divulgação orgânica nas redes sociais, já que muitas
 
 ## Versão 2
 
-- Torneios automáticos
+- Campeonatos automáticos
 - Modo Difícil
 - Amigos
 - Histórico de partidas
