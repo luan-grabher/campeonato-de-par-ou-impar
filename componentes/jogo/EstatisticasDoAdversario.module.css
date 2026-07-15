@@ -1,0 +1,255 @@
+.container {
+  background: var(--corFundoSuperficie);
+  border: 1px solid var(--corBorda);
+  border-radius: var(--raioMedio);
+  padding: 20px;
+  animation: aparecer 0.4s ease-out;
+}
+
+.titulo {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--corTexto);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.secao {
+  margin-bottom: 20px;
+}
+
+.secao:last-child {
+  margin-bottom: 0;
+}
+
+.subtitulo {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--corTextoSecundario);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 10px;
+}
+
+/* Gráfico de barras */
+.grafico {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 120px;
+}
+
+.coluna {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.barraWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.rotuloFrequencia {
+  font-size: 0.5625rem;
+  color: var(--corTextoSecundario);
+  margin-bottom: 2px;
+  font-weight: 600;
+}
+
+.barra {
+  width: 100%;
+  max-width: 22px;
+  background: linear-gradient(180deg, var(--corDestaquePrimario), #6a4ce0);
+  border-radius: 3px 3px 0 0;
+  transition: height var(--transicaoMedia);
+  min-height: 0;
+}
+
+.barra:hover {
+  opacity: 0.8;
+  box-shadow: 0 0 8px rgba(124, 92, 255, 0.4);
+}
+
+.rotuloNumero {
+  font-size: 0.625rem;
+  color: var(--corTextoSecundario);
+  margin-top: 4px;
+  font-weight: 600;
+}
+
+/* Destaque do número mais usado */
+.numeroDestacado {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: rgba(124, 92, 255, 0.08);
+  border: 1px solid rgba(124, 92, 255, 0.2);
+  border-radius: var(--raioPequeno);
+}
+
+.iconeDestaque {
+  font-size: 1.5rem;
+}
+
+.infoDestaque {
+  display: flex;
+  flex-direction: column;
+}
+
+.rotuloDestaque {
+  font-size: 0.6875rem;
+  color: var(--corTextoSecundario);
+  font-weight: 500;
+}
+
+.valorDestaque {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--corDestaquePrimario);
+}
+
+/* Barras lado a lado Par/Ímpar */
+.barraDupla {
+  display: flex;
+  gap: 12px;
+}
+
+.barraDuplaItem {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.barraDuplaRotulo {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--corTextoSecundario);
+}
+
+.barraDuplaBarra {
+  height: 10px;
+  border-radius: 5px;
+  transition: width var(--transicaoMedia);
+}
+
+.barraDuplaPar {
+  background: linear-gradient(90deg, #4caf50, #66bb6a);
+}
+
+.barraDuplaImpar {
+  background: linear-gradient(90deg, #ff7043, #ff8a65);
+}
+
+.barraDuplaValor {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--corTexto);
+}
+
+/* Sequência atual */
+.sequencia {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.bolinha {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #fff;
+  animation: aparecer 0.3s ease-out;
+}
+
+.bolinhaPar {
+  background: var(--corDestaqueSucesso);
+}
+
+.bolinhaImpar {
+  background: var(--corDestaqueAlerta);
+}
+
+/* Taxa de repetição */
+.barraRepeticao {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.barraRepeticaoBarra {
+  flex: 1;
+  height: 8px;
+  background: var(--corFundo);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.barraRepeticaoPreenchimento {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--corDestaquePrimario), #6a4ce0);
+  transition: width var(--transicaoMedia);
+}
+
+.barraRepeticaoValor {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--corTexto);
+  min-width: 44px;
+  text-align: right;
+}
+
+/* Vazio */
+.vazio {
+  text-align: center;
+  padding: 24px 16px;
+  color: var(--corTextoSecundario);
+  font-size: 0.85rem;
+}
+
+/* Loader */
+.carregando {
+  text-align: center;
+  padding: 24px;
+  color: var(--corTextoSecundario);
+  font-size: 0.85rem;
+  animation: pulsar 1.5s ease-in-out infinite;
+}
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulsar {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}

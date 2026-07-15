@@ -1,0 +1,142 @@
+.cabecalho {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  height: 64px;
+  background: var(--corFundoSuperficie);
+  border-bottom: 1px solid var(--corBorda);
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ── Logo ── */
+
+.logo {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  font-weight: 800;
+  font-size: 1.25rem;
+  text-decoration: none;
+  transition: opacity var(--transicaoRapida);
+}
+
+.logo:hover {
+  opacity: 0.85;
+}
+
+.logoPar {
+  background: linear-gradient(135deg, var(--corDestaquePrimario), #b388ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.logoOu {
+  color: var(--corTextoSecundario);
+  font-weight: 400;
+  font-size: 0.875rem;
+  text-transform: lowercase;
+}
+
+.logoImpar {
+  background: linear-gradient(135deg, var(--corDestaqueSecundario), #00f5d4);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ── Navegação ── */
+
+.navegacao {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.link {
+  color: var(--corTextoSecundario);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color var(--transicaoRapida);
+}
+
+.link:hover {
+  color: var(--corTextoPrincipal);
+}
+
+/* ── Ações ── */
+
+.acoes {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.linkEntrar {
+  color: var(--corTextoPrincipal);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 8px 16px;
+  border: 1px solid var(--corBorda);
+  border-radius: var(--raioPequeno);
+  transition: all var(--transicaoRapida);
+}
+
+.linkEntrar:hover {
+  border-color: var(--corDestaquePrimario);
+  background: rgba(124, 92, 255, 0.08);
+}
+
+.botaoJogar {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--corTextoPrincipal);
+  background: var(--corDestaquePrimario);
+  border-radius: var(--raioPequeno);
+  text-decoration: none;
+  transition: all var(--transicaoRapida);
+}
+
+.botaoJogar:hover {
+  background: var(--corDestaquePrimarioHover);
+  box-shadow: var(--sombraDoDestaque);
+}
+
+/* ── Responsivo ── */
+
+@media (max-width: 768px) {
+  .navegacao {
+    display: none;
+  }
+
+  .acoes {
+    gap: 8px;
+  }
+
+  .linkEntrar {
+    padding: 6px 12px;
+    font-size: 0.8125rem;
+  }
+
+  .botaoJogar {
+    padding: 8px 16px;
+    font-size: 0.8125rem;
+  }
+}

@@ -1,0 +1,236 @@
+.container {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 24px;
+  animation: aparecer 0.4s ease-out;
+}
+
+.placarContainer {
+  margin-bottom: 24px;
+}
+
+.timerContainer {
+  margin-bottom: 24px;
+}
+
+.avisoConexao {
+  text-align: center;
+  padding: 8px 16px;
+  background: rgba(124, 92, 255, 0.1);
+  border: 1px solid rgba(124, 92, 255, 0.3);
+  border-radius: var(--raioPequeno);
+  color: var(--corDestaquePrimario);
+  font-size: 0.85rem;
+  margin-bottom: 16px;
+  animation: pulsar 1.5s ease-in-out infinite;
+}
+
+.erro {
+  text-align: center;
+  padding: 12px 16px;
+  background: rgba(255, 94, 122, 0.1);
+  border: 1px solid rgba(255, 94, 122, 0.3);
+  border-radius: var(--raioPequeno);
+  color: var(--corDestaqueAlerta);
+  font-size: 0.9rem;
+  margin-bottom: 16px;
+}
+
+.estatisticasContainer {
+  margin-bottom: 24px;
+}
+
+.areaDeJogo {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.secao {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--corTextoSecundario);
+}
+
+.acao {
+  margin-top: 8px;
+}
+
+.aguardando {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  text-align: center;
+}
+
+.pontinhos {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.ponto {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--corDestaquePrimario);
+  animation: pularPonto 1.4s ease-in-out infinite;
+}
+
+.ponto:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.ponto:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+.textoAguardando {
+  color: var(--corTextoSecundario);
+  font-size: 1.1rem;
+}
+
+.revelacao {
+  display: flex;
+  justify-content: center;
+  padding: 16px 0;
+}
+
+/* ===== Banner do modo (topo) ===== */
+.bannerModo {
+  text-align: center;
+  margin-bottom: 16px;
+  padding: 6px 16px;
+  background: linear-gradient(135deg, rgba(124, 92, 255, 0.15), rgba(124, 92, 255, 0.05));
+  border: 1px solid rgba(124, 92, 255, 0.25);
+  border-radius: var(--raioPequeno);
+}
+
+.bannerTexto {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--corDestaquePrimario);
+  letter-spacing: 0.5px;
+}
+
+/* ===== Banner do Caos ===== */
+.bannerCaos {
+  text-align: center;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, rgba(255, 194, 62, 0.15), rgba(255, 107, 53, 0.08));
+  border: 1px solid rgba(255, 194, 62, 0.3);
+  border-radius: var(--raioPequeno);
+  color: var(--corDestaqueAlerta);
+  font-size: 1rem;
+  font-weight: 700;
+  animation: pulsar 1.5s ease-in-out infinite;
+}
+
+/* ===== Timer Relâmpago ===== */
+.timerRelampago {
+  margin-bottom: 24px;
+}
+
+.timerRelampagoInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.tempoRelampago {
+  font-size: 3rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--corDestaquePrimario);
+  line-height: 1;
+  transition: color 0.3s ease;
+}
+
+.tempoRelampagoAlerta {
+  color: var(--corDestaqueAlerta);
+  animation: vibrar 500ms ease infinite;
+}
+
+.barraRelampagoContainer {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.barraRelampago {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--corDestaquePrimario), #7c5cff);
+  transition: width 1s linear;
+}
+
+.barraRelampagoAlerta {
+  background: linear-gradient(90deg, var(--corDestaqueAlerta), #ff3b5c);
+}
+
+.labelRelampago {
+  font-size: 0.75rem;
+  color: var(--corTextoSecundario);
+  font-weight: 500;
+}
+
+/* ===== Aviso do Modo Invisível ===== */
+.avisoInvisivel {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  background: linear-gradient(135deg, rgba(155, 89, 182, 0.12), rgba(155, 89, 182, 0.04));
+  border: 1px solid rgba(155, 89, 182, 0.25);
+  border-radius: var(--raioPequeno);
+}
+
+.iconeInvisivel {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.textoInvisivel {
+  font-size: 0.95rem;
+  color: var(--corTextoSecundario);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.textoInvisivel small {
+  font-size: 0.8rem;
+  color: var(--corTextoFosco);
+}
+
+@keyframes pulsar {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes pularPonto {
+  0%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-12px); }
+}
+
+@keyframes aparecer {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes vibrar {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  75% { transform: translateX(2px); }
+}

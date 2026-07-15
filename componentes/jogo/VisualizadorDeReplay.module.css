@@ -1,0 +1,428 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding: 24px;
+  min-height: 70vh;
+  animation: aparecer 0.4s ease-out;
+}
+
+/* Cabeçalho */
+.cabecalho {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  max-width: 700px;
+}
+
+.botaoVoltar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--raioPequeno);
+  border: 1px solid var(--corBorda);
+  background: var(--corFundoSuperficie);
+  color: var(--corTextoPrimario);
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  flex-shrink: 0;
+}
+
+.botaoVoltar:hover {
+  background: var(--corFundoElevado);
+  border-color: var(--corDestaquePrimario);
+}
+
+.infoCabecalho {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.titulo {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.modoTag {
+  padding: 4px 12px;
+  background: var(--corDestaquePrimario);
+  color: #000;
+  border-radius: var(--raioPequeno);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+/* Placar */
+.placar {
+  margin-bottom: 8px;
+}
+
+/* Área de jogo */
+.areaDeJogo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  width: 100%;
+  max-width: 700px;
+  min-height: 300px;
+}
+
+/* Rodada atual */
+.rodadaAtual {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  width: 100%;
+}
+
+.jogadasContainer {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  justify-content: center;
+}
+
+.jogadaCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  max-width: 240px;
+  padding: 24px 16px;
+  background: var(--corFundoSuperficie);
+  border: 1px solid var(--corBorda);
+  border-radius: var(--raioGrande);
+  transition: border-color 0.3s;
+}
+
+.jogadaCardCabecalho {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.jogadaRotulo {
+  font-size: 0.75rem;
+  color: var(--corTextoSecundario);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.jogadaNome {
+  font-size: 0.95rem;
+  color: var(--corTextoPrimario);
+}
+
+.jogadaRevelada {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  animation: revelar 0.4s ease-out;
+}
+
+.numeroGrande {
+  font-size: 3rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.paridadeTag {
+  padding: 4px 16px;
+  border-radius: var(--raioPequeno);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.par {
+  background: rgba(0, 212, 170, 0.15);
+  color: var(--corVitoria);
+}
+
+.impar {
+  background: rgba(255, 94, 122, 0.15);
+  color: var(--corDerrota);
+}
+
+.jogadaOculta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 24px 0;
+}
+
+.interrogacao {
+  font-size: 3rem;
+  font-weight: 900;
+  color: var(--corTextoSecundario);
+  opacity: 0.5;
+}
+
+.jogadaOcultaLabel {
+  font-size: 0.8rem;
+  color: var(--corTextoSecundario);
+}
+
+/* VS */
+.vsContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.vsTexto {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--corDestaquePrimario);
+  letter-spacing: 0.05em;
+}
+
+.rodadaIndice {
+  font-size: 0.75rem;
+  color: var(--corTextoSecundario);
+  white-space: nowrap;
+}
+
+/* Resultado da rodada */
+.resultadoRodada {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  animation: aparecer 0.5s ease-out;
+}
+
+.quemVenceu {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--corVitoria);
+  text-align: center;
+}
+
+/* Barra de progresso */
+.barraProgresso {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  width: 100%;
+  max-width: 400px;
+}
+
+.marcadorProgresso {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--corBorda);
+  background: var(--corFundoSuperficie);
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 0;
+}
+
+.marcadorProgresso:hover {
+  border-color: var(--corDestaquePrimario);
+  transform: scale(1.2);
+}
+
+.marcadorAtivo {
+  border-color: var(--corDestaquePrimario);
+  background: var(--corDestaquePrimario);
+  transform: scale(1.3);
+}
+
+.marcadorCompleto {
+  border-color: var(--corVitoria);
+  background: var(--corVitoria);
+  opacity: 0.6;
+}
+
+/* Tela final */
+.telaFinal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 48px 24px;
+  text-align: center;
+  animation: aparecer 0.5s ease-out;
+}
+
+.iconeFinal {
+  margin-bottom: 8px;
+}
+
+.iconeVitoria {
+  color: var(--corVitoria);
+  filter: drop-shadow(0 0 20px rgba(0, 212, 170, 0.4));
+}
+
+.iconeDerrota {
+  color: var(--corDerrota);
+  filter: drop-shadow(0 0 20px rgba(255, 94, 122, 0.4));
+}
+
+.tituloFinal {
+  font-size: 1.75rem;
+  font-weight: 800;
+}
+
+.subtituloFinal {
+  font-size: 1rem;
+  color: var(--corTextoSecundario);
+}
+
+/* Estatísticas */
+.estatisticas {
+  margin-top: 24px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.tituloEstatisticas {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.gradeEstatisticas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.cartaoEstatistica {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 16px;
+  background: var(--corFundoSuperficie);
+  border: 1px solid var(--corBorda);
+  border-radius: var(--raioMedio);
+}
+
+.estatisticaValor {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--corDestaquePrimario);
+}
+
+.estatisticaLabel {
+  font-size: 0.8rem;
+  color: var(--corTextoSecundario);
+}
+
+/* Controles */
+.controles {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 24px;
+  background: var(--corFundoSuperficie);
+  border: 1px solid var(--corBorda);
+  border-radius: var(--raioGrande);
+}
+
+/* Legenda */
+.legenda {
+  display: flex;
+  gap: 32px;
+  justify-content: center;
+}
+
+.legendaJogador {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legendaCor {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legendaNome {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.legendaElo {
+  font-size: 0.75rem;
+  color: var(--corTextoSecundario);
+}
+
+/* Sem rodadas */
+.semRodadas {
+  padding: 48px 24px;
+  color: var(--corTextoSecundario);
+  text-align: center;
+}
+
+/* Animações */
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes revelar {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Responsivo */
+@media (max-width: 600px) {
+  .container {
+    padding: 16px;
+  }
+
+  .jogadasContainer {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .jogadaCard {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .vsContainer {
+    flex-direction: row;
+    gap: 8px;
+  }
+
+  .legenda {
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+  }
+}

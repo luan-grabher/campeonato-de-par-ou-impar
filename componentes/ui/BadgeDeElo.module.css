@@ -1,0 +1,66 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  animation: brilho 3s ease-in-out infinite;
+}
+
+.icone {
+  width: 12px;
+  height: 12px;
+}
+
+/* Faixas de Elo */
+.ferro {
+  background: rgba(165, 165, 165, 0.15);
+  color: #a5a5a5;
+}
+
+.bronze {
+  background: rgba(205, 127, 50, 0.15);
+  color: #cd7f32;
+}
+
+.prata {
+  background: rgba(192, 192, 192, 0.15);
+  color: #c0c0c0;
+}
+
+.ouro {
+  background: rgba(255, 215, 0, 0.15);
+  color: #ffd700;
+}
+
+.platina {
+  background: rgba(80, 200, 120, 0.15);
+  color: #50c878;
+}
+
+.diamante {
+  background: rgba(0, 180, 255, 0.15);
+  color: #00b4ff;
+}
+
+.mestre {
+  background: rgba(124, 92, 255, 0.15);
+  color: #7c5cff;
+}
+
+.lendario {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(124, 92, 255, 0.15));
+  color: #ffd700;
+}
+
+@keyframes brilho {
+  0%, 100% {
+    box-shadow: 0 0 0 rgba(255, 255, 255, 0);
+  }
+  50% {
+    box-shadow: 0 0 6px rgba(255, 255, 255, 0.06);
+  }
+}

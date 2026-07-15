@@ -1,0 +1,42 @@
+.wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  max-width: 400px;
+}
+
+.barraContainer {
+  flex: 1;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.barra {
+  height: 100%;
+  background: linear-gradient(90deg, var(--corDestaquePrimario), #00b4ff);
+  border-radius: 999px;
+  transition: width 1s ease;
+}
+
+.texto {
+  font-size: 0.75rem;
+  color: var(--corTextoSecundario);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.encerrado {
+  font-size: 0.75rem;
+  color: var(--corDestaqueAlerta);
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .wrapper {
+    max-width: 100%;
+    width: 100%;
+  }
+}

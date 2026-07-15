@@ -1,0 +1,281 @@
+.pagina {
+  padding: 48px 24px;
+  min-height: 100dvh;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.titulo {
+  font-size: clamp(1.5rem, 3.5vw, 2.25rem);
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.subtitulo {
+  color: var(--corTextoSecundario);
+  font-size: 1.125rem;
+  margin-bottom: 40px;
+}
+
+.totalJogadores {
+  color: var(--corTextoSecundario);
+  font-weight: 400;
+}
+
+/* ========= Top 3 ========= */
+
+.top3 {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+}
+
+.topCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 24px 32px;
+  background: var(--corFundoSuperficie);
+  border: 1px solid var(--corBorda);
+  border-radius: var(--raioMedio);
+  min-width: 160px;
+  animation: subir 0.5s ease-out both;
+  transition: all var(--transicaoMedia);
+}
+
+.topCard:hover {
+  transform: translateY(-4px);
+}
+
+.topPrimeiro {
+  border-color: rgba(255, 215, 0, 0.3);
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.08), rgba(255, 215, 0, 0.02));
+  animation-delay: 0s;
+}
+
+.topSegundo {
+  border-color: rgba(192, 192, 192, 0.3);
+  background: linear-gradient(135deg, rgba(192, 192, 192, 0.06), transparent);
+  animation-delay: 0.1s;
+}
+
+.topTerceiro {
+  border-color: rgba(205, 127, 50, 0.3);
+  background: linear-gradient(135deg, rgba(205, 127, 50, 0.06), transparent);
+  animation-delay: 0.2s;
+}
+
+.topMedalha {
+  font-size: 2rem;
+}
+
+.topNome {
+  font-weight: 700;
+  font-size: 1rem;
+  text-align: center;
+}
+
+.topElo {
+  font-size: 0.875rem;
+  color: var(--corDestaquePrimario);
+  font-weight: 600;
+}
+
+/* ========= Tabela ========= */
+
+.tabelaWrapper {
+  overflow-x: auto;
+  border: 1px solid var(--corBorda);
+  border-radius: var(--raioMedio);
+  background: var(--corFundoSuperficie);
+}
+
+.tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+
+.tabela thead {
+  background: var(--corFundoElevado);
+}
+
+.tabela th {
+  padding: 14px 16px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--corTextoSecundario);
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--corBorda);
+}
+
+.tabela td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--corBorda);
+}
+
+.tabela tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.tabela tbody tr {
+  transition: background var(--transicaoRapida);
+}
+
+.tabela tbody tr:hover {
+  background: rgba(124, 92, 255, 0.04);
+}
+
+/* Linha do jogador logado */
+.linhaDestaque {
+  background: rgba(124, 92, 255, 0.08) !important;
+  border-left: 3px solid var(--corDestaquePrimario);
+}
+
+.linhaDestaque:hover {
+  background: rgba(124, 92, 255, 0.12) !important;
+}
+
+.colPosicao {
+  width: 48px;
+}
+
+.colJogador {
+  min-width: 160px;
+}
+
+.colElo {
+  width: 80px;
+}
+
+.colFaixa {
+  width: 120px;
+}
+
+.colNumerica {
+  width: 100px;
+  text-align: right;
+}
+
+.tabela th.colNumerica {
+  text-align: right;
+}
+
+.posicaoNumero {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 0.8125rem;
+  color: var(--corTextoSecundario);
+}
+
+.posicaoDestaque {
+  background: var(--corDestaquePrimario);
+  color: var(--corTextoPrincipal);
+}
+
+.nomeJogador {
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.voce {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--corDestaquePrimario);
+  background: rgba(124, 92, 255, 0.12);
+  padding: 2px 8px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.semDados {
+  text-align: center !important;
+  color: var(--corTextoSecundario);
+  padding: 48px 16px !important;
+  font-style: italic;
+}
+
+/* ========= Paginação ========= */
+
+.paginacao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 32px;
+  padding: 16px 0;
+}
+
+.botaoPagina {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: var(--corFundoSuperficie);
+  border: 1px solid var(--corBorda);
+  border-radius: var(--raioMedio);
+  color: var(--corTextoPrincipal);
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-decoration: none;
+  transition: all var(--transicaoRapida);
+  cursor: pointer;
+}
+
+.botaoPagina:hover:not(.botaoPaginaDesabilitado) {
+  border-color: var(--corDestaquePrimario);
+  background: rgba(124, 92, 255, 0.06);
+}
+
+.botaoPaginaDesabilitado {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.paginaInfo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.875rem;
+  color: var(--corTextoSecundario);
+}
+
+.paginaAtiva {
+  font-weight: 700;
+  color: var(--corTextoPrincipal);
+  font-size: 1rem;
+}
+
+.paginaSeparador {
+  color: var(--corBorda);
+}
+
+/* ========= Animações ========= */
+
+@keyframes subir {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

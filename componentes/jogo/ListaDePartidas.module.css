@@ -1,0 +1,156 @@
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ========= Filtros ========= */
+
+.filtros {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.botaoFiltro {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: var(--corFundoSuperficie);
+  border: 1px solid var(--corBorda);
+  border-radius: var(--raioPequeno);
+  color: var(--corTextoSecundario);
+  font-weight: 600;
+  font-size: 0.8125rem;
+  transition: all var(--transicaoRapida);
+  cursor: pointer;
+}
+
+.botaoFiltro:hover {
+  border-color: var(--corDestaquePrimario);
+  color: var(--corTextoPrincipal);
+  background: rgba(124, 92, 255, 0.06);
+}
+
+.filtroAtivo {
+  border-color: var(--corDestaquePrimario);
+  background: rgba(124, 92, 255, 0.12);
+  color: var(--corDestaquePrimario);
+}
+
+/* ========= Info total ========= */
+
+.totalInfo {
+  font-size: 0.8125rem;
+  color: var(--corTextoSecundario);
+}
+
+/* ========= Estado vazio ========= */
+
+.vazio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 24px;
+  text-align: center;
+  border: 2px dashed var(--corBorda);
+  border-radius: var(--raioMedio);
+  background: var(--corFundoSuperficie);
+}
+
+.iconeVazio {
+  color: var(--corTextoDesabilitado);
+  margin-bottom: 16px;
+}
+
+.vazioTexto {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.vazioSubtitulo {
+  font-size: 0.875rem;
+  color: var(--corTextoSecundario);
+}
+
+/* ========= Lista de itens ========= */
+
+.listaDeItens {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ========= Paginação ========= */
+
+.paginacao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 12px;
+  padding: 16px 0;
+}
+
+.botaoPagina {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: var(--corFundoSuperficie);
+  border: 1px solid var(--corBorda);
+  border-radius: var(--raioMedio);
+  color: var(--corTextoPrincipal);
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-decoration: none;
+  transition: all var(--transicaoRapida);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.botaoPagina:hover:not(:disabled) {
+  border-color: var(--corDestaquePrimario);
+  background: rgba(124, 92, 255, 0.06);
+}
+
+.botaoPagina:disabled,
+.botaoPaginaDesabilitado {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.paginaInfo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.875rem;
+  color: var(--corTextoSecundario);
+}
+
+.paginaAtiva {
+  font-weight: 700;
+  color: var(--corTextoPrincipal);
+  font-size: 1rem;
+}
+
+.paginaSeparador {
+  color: var(--corBorda);
+}
+
+/* ========= Responsivo ========= */
+
+@media (max-width: 640px) {
+  .filtros {
+    gap: 6px;
+  }
+
+  .botaoFiltro {
+    font-size: 0.75rem;
+    padding: 6px 12px;
+  }
+}

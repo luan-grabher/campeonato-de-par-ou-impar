@@ -1,0 +1,129 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.cartao {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  border-radius: var(--raioMedio);
+  border: 1px solid var(--corBorda);
+  background: var(--corFundoSuperficie);
+  transition: all var(--transicaoRapida);
+  position: relative;
+  overflow: hidden;
+}
+
+.cartao:hover {
+  border-color: var(--corBordaDestaque);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.desbloqueada {
+  border-color: rgba(255, 215, 0, 0.3);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 215, 0, 0.05),
+    rgba(255, 215, 0, 0.02)
+  );
+}
+
+.desbloqueada:hover {
+  border-color: rgba(255, 215, 0, 0.5);
+  box-shadow: 0 4px 16px rgba(255, 215, 0, 0.1);
+}
+
+.trancada {
+  opacity: 0.6;
+}
+
+.trancada:hover {
+  opacity: 0.8;
+}
+
+/* ═══ Icone ═══ */
+
+.iconeContainer {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--raioPequeno);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.icone {
+  color: #ffd700;
+}
+
+.iconeTrancado {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.iconeDesbotado {
+  color: var(--corTextoSecundario);
+  opacity: 0.4;
+}
+
+.cadeado {
+  position: absolute;
+  bottom: -4px;
+  right: -6px;
+  color: var(--corTextoSecundario);
+  opacity: 0.6;
+}
+
+/* ═══ Info ═══ */
+
+.info {
+  flex: 1;
+  min-width: 0;
+}
+
+.nome {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: var(--corTexto);
+}
+
+.descricao {
+  font-size: 0.8125rem;
+  color: var(--corTextoSecundario);
+  line-height: 1.4;
+}
+
+/* ═══ Selo ═══ */
+
+.seloDesbloqueada {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #ffd700;
+  color: #1a1a2e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+/* ═══ Responsivo ═══ */
+
+@media (max-width: 480px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,134 @@
+.pagina {
+  padding: 48px 24px;
+  min-height: 100dvh;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.voltar {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.875rem;
+  color: var(--corTextoSecundario);
+  text-decoration: none;
+  margin-bottom: 24px;
+  transition: color var(--transicaoRapida);
+}
+
+.voltar:hover {
+  color: var(--corDestaquePrimario);
+}
+
+.cabecalho {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+}
+
+.cabecalhoInfo {
+  flex: 1;
+}
+
+.titulo {
+  font-size: clamp(1.5rem, 3.5vw, 2.25rem);
+  font-weight: 800;
+  margin: 0 0 16px 0;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.status {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.statusAberto {
+  background: rgba(34, 197, 94, 0.12);
+  color: #22c55e;
+}
+
+.statusAndamento {
+  background: rgba(59, 130, 246, 0.12);
+  color: #3b82f6;
+}
+
+.statusFinalizado {
+  background: rgba(124, 92, 255, 0.12);
+  color: #7c5cff;
+}
+
+.statusCancelado {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+}
+
+.metaItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8125rem;
+  color: var(--corTextoSecundario);
+}
+
+.metaItem svg {
+  width: 14px;
+  height: 14px;
+  color: var(--corDestaquePrimario);
+}
+
+.secao {
+  margin-bottom: 40px;
+}
+
+/* Estado de erro */
+.erro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 80px 24px;
+  text-align: center;
+}
+
+.erro h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.erro p {
+  color: var(--corTextoSecundario);
+  margin: 0 0 8px 0;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .pagina {
+    padding: 24px 16px;
+  }
+
+  .cabecalho {
+    flex-direction: column;
+  }
+
+  .meta {
+    gap: 8px;
+  }
+}

@@ -1,0 +1,39 @@
+.pagina {
+  min-height: calc(100dvh - 64px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 40px 24px 80px;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(124, 92, 255, 0.06) 0%, transparent 60%);
+}
+
+.container {
+  width: 100%;
+  max-width: 640px;
+}
+
+.carregando {
+  min-height: calc(100dvh - 64px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--corTextoSecundario);
+  font-size: 1rem;
+}
+
+.naoEncontrado {
+  min-height: calc(100dvh - 64px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 40px 24px;
+  text-align: center;
+}
+
+.textoNaoEncontrado {
+  color: var(--corTextoSecundario);
+  font-size: 1.125rem;
+}

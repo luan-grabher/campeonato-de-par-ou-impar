@@ -1,0 +1,58 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 16px;
+  animation: aparecer 200ms ease forwards;
+}
+
+.card {
+  background: var(--corFundoSuperficie);
+  border: 1px solid var(--corBorda);
+  border-radius: var(--raioGrande);
+  padding: 32px;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  animation: aparecer 300ms ease forwards;
+  box-shadow: var(--sombraDoCard);
+}
+
+.titulo {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--corTextoPrincipal);
+  margin-bottom: 12px;
+}
+
+.descricao {
+  font-size: 0.9375rem;
+  color: var(--corTextoSecundario);
+  line-height: 1.5;
+  margin-bottom: 24px;
+}
+
+.acoes {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.saindo {
+  animation: desaparecer 200ms ease forwards;
+}
+
+@keyframes desaparecer {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}

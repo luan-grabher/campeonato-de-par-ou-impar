@@ -1,0 +1,158 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.secao {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.secaoTitulo {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--corTextoSecundario);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.contagem {
+  font-weight: 400;
+  color: var(--corTextoDesabilitado);
+}
+
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: var(--raioMedio);
+  transition: background var(--transicaoMedia);
+}
+
+.item:hover {
+  background: var(--corFundoSuperficie);
+}
+
+.itemInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.itemAcoes {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity var(--transicaoMedia);
+}
+
+.item:hover .itemAcoes {
+  opacity: 1;
+}
+
+.statusOnline {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--corDestaqueSecundario);
+  box-shadow: 0 0 6px rgba(0, 212, 170, 0.5);
+  flex-shrink: 0;
+}
+
+.statusOffline {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--corTextoDesabilitado);
+  flex-shrink: 0;
+}
+
+.botaoRemover {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--corTextoDesabilitado);
+  cursor: pointer;
+  transition: all var(--transicaoRapida);
+}
+
+.botaoRemover:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+/* Estado vazio */
+.vazio {
+  text-align: center;
+  color: var(--corTextoSecundario);
+  padding: 48px 0;
+}
+
+.vazioIcone {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+  color: var(--corTextoDesabilitado);
+}
+
+.vazioTitulo {
+  text-align: center;
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.vazioDescricao {
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--corTextoSecundario);
+  line-height: 1.5;
+}
+
+/* Modal */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 24px;
+}
+
+.modal {
+  background: var(--corFundoElevado);
+  border: 1px solid var(--corBorda);
+  border-radius: var(--raioGrande);
+  padding: 24px;
+  max-width: 400px;
+  width: 100%;
+}
+
+.modalTexto {
+  font-size: 1rem;
+  margin-bottom: 24px;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.modalAcoes {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}

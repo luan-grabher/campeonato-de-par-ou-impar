@@ -1,0 +1,41 @@
+.container {
+  display: flex;
+  gap: 12px;
+}
+
+.botao {
+  flex: 1;
+  padding: 16px 24px;
+  text-align: center;
+  font-size: 1.125rem;
+  font-weight: 700;
+  border-radius: var(--raioPequeno);
+  background: var(--corFundoSuperficie);
+  border: 1px solid var(--corBorda);
+  color: var(--corTextoPrincipal);
+  transition: all var(--transicaoRapida);
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.botao:hover:not(:disabled) {
+  background: var(--corFundoElevado);
+}
+
+.selecionadoPar {
+  background: var(--corDestaquePrimario) !important;
+  border-color: var(--corDestaquePrimario) !important;
+  box-shadow: var(--sombraDoDestaque);
+}
+
+.selecionadoImpar {
+  background: var(--corDestaqueSecundario) !important;
+  border-color: var(--corDestaqueSecundario) !important;
+  box-shadow: 0 0 20px rgba(0, 212, 170, 0.3);
+}
+
+.desabilitado {
+  opacity: 0.3;
+  cursor: not-allowed;
+}

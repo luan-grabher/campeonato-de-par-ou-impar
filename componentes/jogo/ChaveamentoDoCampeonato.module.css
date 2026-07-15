@@ -1,0 +1,349 @@
+.chaveamento {
+  width: 100%;
+}
+
+.avisoInscricoes {
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: var(--raioMedio);
+  padding: 16px 20px;
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.avisoInscricoes p {
+  font-size: 0.9375rem;
+  color: var(--corTextoSecundario);
+  margin: 0;
+}
+
+/* ========= Bracket Layout ========= */
+
+.bracket {
+  display: flex;
+  gap: 24px;
+  overflow-x: auto;
+  padding-bottom: 16px;
+  min-height: 400px;
+  align-items: stretch;
+}
+
+/* ========= Fase ========= */
+
+.fase {
+  display: flex;
+  flex-direction: column;
+  min-width: 220px;
+  max-width: 260px;
+  flex-shrink: 0;
+}
+
+.faseCabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--corBorda);
+}
+
+.faseNome {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--corDestaquePrimario);
+  margin: 0;
+  white-space: nowrap;
+}
+
+.fasePartidas {
+  font-size: 0.6875rem;
+  color: var(--corTextoSecundario);
+  font-weight: 500;
+}
+
+.fasePartidas {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  flex: 1;
+  gap: 16px;
+}
+
+.partidaWrapper {
+  position: relative;
+}
+
+.conector {
+  display: none; /* Desabilitado para versão simplificada */
+}
+
+/* ========= Partida Card ========= */
+
+.partida {
+  background: var(--corFundoSuperficie);
+  border: 1px solid var(--corBorda);
+  border-radius: var(--raioPequeno);
+  overflow: hidden;
+  cursor: default;
+  transition: all var(--transicaoRapida);
+}
+
+.partida:hover {
+  border-color: var(--corBordaHover);
+}
+
+.partidaFinalizada {
+  border-color: rgba(124, 92, 255, 0.3);
+}
+
+.partidaAndamento {
+  border-color: rgba(59, 130, 246, 0.5);
+  animation: pulsarBorda 2s ease-in-out infinite;
+}
+
+.partida[role="button"] {
+  cursor: pointer;
+}
+
+.partida[role="button"]:hover {
+  border-color: var(--corDestaquePrimario);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(124, 92, 255, 0.12);
+}
+
+.partida[role="button"]:focus-visible {
+  outline: 2px solid var(--corDestaquePrimario);
+  outline-offset: 2px;
+}
+
+.jogadores {
+  display: flex;
+  flex-direction: column;
+}
+
+.jogador {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  transition: background var(--transicaoRapida);
+}
+
+.jogador:first-child {
+  border-bottom: 1px solid var(--corBorda);
+}
+
+.jogadorNome {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.placeholder {
+  color: var(--corTextoSecundario);
+  font-weight: 400;
+  font-style: italic;
+}
+
+.vencedor {
+  color: #22c55e;
+}
+
+.perdedor {
+  opacity: 0.5;
+}
+
+.jogadorDestaque {
+  background: rgba(124, 92, 255, 0.06);
+}
+
+.voceTag {
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: var(--corDestaquePrimario);
+  background: rgba(124, 92, 255, 0.12);
+  padding: 1px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+}
+
+.trofeu {
+  color: #f59e0b;
+  flex-shrink: 0;
+}
+
+.divisor {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 12px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.placarTexto {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--corTextoSecundario);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.partidaFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 12px;
+  background: rgba(0, 0, 0, 0.15);
+  border-top: 1px solid var(--corBorda);
+}
+
+.prontoParaJogar {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--corDestaquePrimario);
+}
+
+.spinning {
+  animation: girar 1.5s linear infinite;
+}
+
+/* ========= Status Tags ========= */
+
+.statusAguardando,
+.statusAndamento,
+.statusFinalizada,
+.statusCancelada {
+  font-size: 0.625rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.statusAguardando {
+  background: rgba(100, 100, 100, 0.12);
+  color: var(--corTextoSecundario);
+}
+
+.statusAndamento {
+  background: rgba(59, 130, 246, 0.12);
+  color: #3b82f6;
+}
+
+.statusFinalizada {
+  background: rgba(34, 197, 94, 0.12);
+  color: #22c55e;
+}
+
+.statusCancelada {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+}
+
+/* ========= Fase vazia ========= */
+
+.faseVazia {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80px;
+  border: 1px dashed var(--corBorda);
+  border-radius: var(--raioPequeno);
+}
+
+.faseVaziaTexto {
+  font-size: 0.8125rem;
+  color: var(--corTextoSecundario);
+  font-style: italic;
+}
+
+/* ========= Sem dados ========= */
+
+.semDados {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 64px 24px;
+  color: var(--corTextoSecundario);
+}
+
+.semDadosIcone {
+  opacity: 0.3;
+}
+
+/* ========= Legenda ========= */
+
+.legenda {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  margin-top: 32px;
+  padding-top: 16px;
+  border-top: 1px solid var(--corBorda);
+}
+
+.legendaItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: var(--corTextoSecundario);
+}
+
+.legendaCorDestaque {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: rgba(124, 92, 255, 0.3);
+}
+
+/* ========= Animações ========= */
+
+@keyframes pulsarBorda {
+  0%, 100% { border-color: rgba(59, 130, 246, 0.3); }
+  50% { border-color: rgba(59, 130, 246, 0.6); }
+}
+
+@keyframes girar {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ========= Responsivo ========= */
+
+@media (max-width: 768px) {
+  .bracket {
+    gap: 16px;
+  }
+
+  .fase {
+    min-width: 180px;
+    max-width: 200px;
+  }
+
+  .jogador {
+    padding: 6px 10px;
+    font-size: 0.75rem;
+  }
+
+  .legenda {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+}

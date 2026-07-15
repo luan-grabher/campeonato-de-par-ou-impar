@@ -1,0 +1,25 @@
+.pagina {
+  padding: 48px 24px;
+  min-height: 100dvh;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.titulo {
+  font-size: clamp(1.5rem, 3.5vw, 2.25rem);
+  font-weight: 800;
+  margin-bottom: 32px;
+}
+
+.erro {
+  padding: 32px;
+  background: var(--corFundoSuperficie);
+  border: 1px solid var(--corDerrota);
+  border-radius: var(--raioMedio);
+  color: var(--corDerrota);
+  text-align: center;
+  font-weight: 600;
+}

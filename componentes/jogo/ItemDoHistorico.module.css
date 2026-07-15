@@ -1,0 +1,227 @@
+.card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  background: var(--corFundoSuperficie);
+  border: 1px solid var(--corBorda);
+  border-left: 4px solid transparent;
+  border-radius: var(--raioMedio);
+  text-decoration: none;
+  color: var(--corTextoPrincipal);
+  transition: all var(--transicaoRapida);
+  animation: aparecer 0.3s ease both;
+}
+
+.card:hover {
+  background: var(--corFundoElevado);
+  transform: translateX(4px);
+}
+
+.card.vitoria {
+  border-left-color: var(--corVitoria);
+}
+
+.card.derrota {
+  border-left-color: var(--corDerrota);
+}
+
+.card.empate {
+  border-left-color: var(--corEmpate);
+}
+
+/* Resultado */
+
+.resultadoWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 64px;
+}
+
+.iconeVitoria {
+  color: var(--corVitoria);
+}
+
+.iconeDerrota {
+  color: var(--corDerrota);
+}
+
+.iconeEmpate {
+  color: var(--corEmpate);
+}
+
+.resultadoTexto {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.card.vitoria .resultadoTexto {
+  color: var(--corVitoria);
+}
+
+.card.derrota .resultadoTexto {
+  color: var(--corDerrota);
+}
+
+.card.empate .resultadoTexto {
+  color: var(--corEmpate);
+}
+
+/* Adversário */
+
+.adversarioWrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--corFundoElevado);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.avatarImagem {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatarIniciais {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--corTextoSecundario);
+}
+
+.adversarioInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.adversarioNome {
+  font-weight: 700;
+  font-size: 0.9375rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.detalhes {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: var(--corTextoSecundario);
+}
+
+/* Elo */
+
+.eloWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+}
+
+.eloGanho {
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--corVitoria);
+}
+
+.eloPerdido {
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--corDerrota);
+}
+
+.eloNeutro {
+  color: var(--corTextoSecundario);
+  font-weight: 600;
+}
+
+/* Data */
+
+.dataWrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--corTextoSecundario);
+  font-size: 0.8125rem;
+  white-space: nowrap;
+}
+
+.dataTexto {
+  white-space: nowrap;
+}
+
+/* Seta */
+
+.seta {
+  color: var(--corTextoDesabilitado);
+  flex-shrink: 0;
+  transition: transform var(--transicaoRapida);
+}
+
+.card:hover .seta {
+  transform: translateX(4px);
+  color: var(--corDestaquePrimario);
+}
+
+/* ========= Responsivo ========= */
+
+@media (max-width: 640px) {
+  .card {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .resultadoWrapper {
+    min-width: auto;
+  }
+
+  .adversarioWrapper {
+    flex: 1 1 calc(100% - 80px);
+  }
+
+  .eloWrapper {
+    min-width: auto;
+    order: 1;
+  }
+
+  .dataWrapper {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .seta {
+    display: none;
+  }
+}
+
+/* ========= Animação ========= */
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -1,0 +1,207 @@
+/* ════════════════════════════════════════
+   LojaDeCosmeticos
+   ════════════════════════════════════════ */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.mensagem {
+  padding: 12px 16px;
+  border-radius: var(--raioPequeno);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.mensagemSucesso {
+  background: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.mensagemErro {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.saldo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: rgba(124, 92, 255, 0.1);
+  border: 1px solid rgba(124, 92, 255, 0.2);
+  border-radius: var(--raioMedio);
+  align-self: flex-end;
+}
+
+.rotuloSaldo {
+  font-size: 0.875rem;
+  color: var(--corTextoSecundario);
+}
+
+.valorSaldo {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--corDestaquePrimario);
+}
+
+/* Seções por tipo */
+.secao {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tituloSecao {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--corTextoPrincipal);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--corBorda);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.cartao {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  background: var(--corFundoSuperficie);
+  border: 1px solid var(--corBorda);
+  border-radius: var(--raioMedio);
+  transition: all var(--transicaoRapida);
+}
+
+.cartao:hover {
+  border-color: rgba(124, 92, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.possui {
+  opacity: 0.6;
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.possui:hover {
+  transform: none;
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.visual {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80px;
+}
+
+.imagem {
+  object-fit: contain;
+}
+
+.placeholder {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--corDestaquePrimario), var(--corDestaqueSecundario));
+  border-radius: var(--raioPequeno);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nome {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--corTextoPrincipal);
+  margin: 0;
+}
+
+.tipo {
+  font-size: 0.75rem;
+  color: var(--corTextoSecundario);
+}
+
+.rodape {
+  margin-top: auto;
+}
+
+.botaoComprar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 8px 12px;
+  background: linear-gradient(135deg, var(--corDestaquePrimario), var(--corDestaqueSecundario));
+  color: white;
+  border: none;
+  border-radius: var(--raioPequeno);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transicaoRapida);
+}
+
+.botaoComprar:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.botaoComprar:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.botaoPossui {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 8px 12px;
+  background: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  border-radius: var(--raioPequeno);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.spinner {
+  animation: girar 1s linear infinite;
+}
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.vazio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 48px;
+  color: var(--corTextoSecundario);
+  text-align: center;
+}

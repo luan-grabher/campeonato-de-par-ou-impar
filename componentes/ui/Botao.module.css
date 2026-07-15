@@ -1,0 +1,93 @@
+.botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: var(--raioPequeno);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1;
+  transition: all var(--transicaoRapida);
+  white-space: nowrap;
+  user-select: none;
+  border: 1px solid transparent;
+}
+
+.botao:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Variantes */
+.primario {
+  background: var(--corDestaquePrimario);
+  color: var(--corTextoPrincipal);
+}
+
+.primario:hover:not(:disabled) {
+  background: var(--corDestaquePrimarioHover);
+  box-shadow: var(--sombraDoDestaque);
+}
+
+.secundario {
+  background: transparent;
+  color: var(--corTextoPrincipal);
+  border: 1px solid var(--corBorda);
+}
+
+.secundario:hover:not(:disabled) {
+  border-color: var(--corDestaquePrimario);
+  background: rgba(124, 92, 255, 0.08);
+}
+
+.ghost {
+  background: transparent;
+  color: var(--corTextoSecundario);
+}
+
+.ghost:hover:not(:disabled) {
+  color: var(--corTextoPrincipal);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.perigo {
+  background: var(--corDestaqueAlerta);
+  color: var(--corTextoPrincipal);
+}
+
+.perigo:hover:not(:disabled) {
+  background: #ff3d5e;
+  box-shadow: 0 0 20px rgba(255, 94, 122, 0.3);
+}
+
+/* Tamanhos */
+.pequeno {
+  padding: 8px 16px;
+  font-size: 0.875rem;
+}
+
+.grande {
+  padding: 16px 32px;
+  font-size: 1.125rem;
+}
+
+.larguraTotal {
+  width: 100%;
+}
+
+/* Loading spinner */
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: var(--corTextoPrincipal);
+  border-radius: 50%;
+  animation: spin 600ms linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

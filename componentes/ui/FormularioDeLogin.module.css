@@ -1,0 +1,32 @@
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+.erroGlobal {
+  font-size: 0.875rem;
+  color: var(--corDestaqueAlerta);
+  text-align: center;
+  padding: 8px 12px;
+  background: rgba(255, 94, 122, 0.08);
+  border-radius: var(--raioPequeno);
+  animation: aparecer 200ms ease forwards;
+}
+
+.link {
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--corTextoSecundario);
+}
+
+.link a {
+  color: var(--corDestaquePrimario);
+  font-weight: 600;
+}
+
+.link a:hover {
+  color: var(--corDestaquePrimarioHover);
+  text-decoration: underline;
+}

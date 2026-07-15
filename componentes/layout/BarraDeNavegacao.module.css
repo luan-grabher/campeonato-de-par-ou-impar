@@ -1,0 +1,126 @@
+/* ════════════════════════════════════════
+   Sidebar — Desktop
+   ════════════════════════════════════════ */
+
+.sidebar {
+  position: fixed;
+  top: 64px;
+  left: 0;
+  bottom: 0;
+  width: 220px;
+  background: var(--corFundoSuperficie);
+  border-right: 1px solid var(--corBorda);
+  padding: 16px 8px;
+  overflow-y: auto;
+  z-index: 50;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-radius: var(--raioPequeno);
+  color: var(--corTextoSecundario);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all var(--transicaoRapida);
+}
+
+.link:hover {
+  color: var(--corTextoPrincipal);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.ativo {
+  color: var(--corDestaquePrimario);
+  background: rgba(124, 92, 255, 0.1);
+}
+
+.ativo:hover {
+  color: var(--corDestaquePrimario);
+  background: rgba(124, 92, 255, 0.15);
+}
+
+.icone {
+  flex-shrink: 0;
+}
+
+.rotulo {
+  white-space: nowrap;
+}
+
+/* ════════════════════════════════════════
+   Barra Inferior — Mobile
+   ════════════════════════════════════════ */
+
+.barraInferior {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: var(--corFundoSuperficie);
+  border-top: 1px solid var(--corBorda);
+  padding: 4px 0;
+  padding-bottom: env(safe-area-inset-bottom, 4px);
+}
+
+.linkInferior {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+  padding: 6px 4px;
+  color: var(--corTextoSecundario);
+  text-decoration: none;
+  transition: color var(--transicaoRapida);
+  border-radius: var(--raioPequeno);
+}
+
+.linkInferior:hover {
+  color: var(--corTextoPrincipal);
+}
+
+.ativoInferior {
+  color: var(--corDestaquePrimario);
+}
+
+.iconeInferior {
+  flex-shrink: 0;
+}
+
+.rotuloInferior {
+  font-size: 0.625rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* ════════════════════════════════════════
+   Responsivo
+   ════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .sidebar {
+    display: none;
+  }
+
+  .barraInferior {
+    display: flex;
+  }
+}
+
+@media (min-width: 769px) {
+  .barraInferior {
+    display: none;
+  }
+}

@@ -1,0 +1,85 @@
+.container {
+  perspective: 800px;
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+}
+
+.carta {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  transform-style: preserve-3d;
+  animation: virarCarta 600ms ease forwards;
+}
+
+.face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: var(--raioMedio);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.verso {
+  background: linear-gradient(135deg, var(--corFundoElevado), var(--corFundoSuperficie));
+  border: 1px solid var(--corBorda);
+  z-index: 1;
+}
+
+.versoIcone {
+  font-size: 2rem;
+  opacity: 0.3;
+}
+
+.frente {
+  background: var(--corFundoSuperficie);
+  border: 2px solid var(--corBorda);
+  transform: rotateY(180deg);
+}
+
+.frenteVitoria {
+  border-color: var(--corVitoria);
+  box-shadow: 0 0 30px rgba(0, 212, 170, 0.2);
+}
+
+.frenteDerrota {
+  border-color: var(--corDerrota);
+  box-shadow: 0 0 30px rgba(255, 94, 122, 0.2);
+}
+
+.numeroRevelado {
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--corTextoPrincipal);
+  line-height: 1;
+}
+
+.paridadeRevelada {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--corTextoSecundario);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.resultado {
+  margin-top: 4px;
+  font-size: 1.125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.resultadoVitoria {
+  color: var(--corVitoria);
+}
+
+.resultadoDerrota {
+  color: var(--corDerrota);
+}

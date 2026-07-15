@@ -1,0 +1,95 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  background: rgba(0, 0, 0, 0.7);
+  animation: aparecer 300ms ease forwards;
+}
+
+.conteudo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  animation: aparecer 500ms ease forwards;
+}
+
+.texto {
+  font-size: 3rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-shadow: 0 0 40px currentColor;
+}
+
+.vitoria {
+  color: var(--corVitoria);
+}
+
+.derrota {
+  color: var(--corDerrota);
+}
+
+.particulas {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.particula {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: var(--corVitoria);
+  animation: particulas 800ms ease forwards;
+}
+
+.particula:nth-child(odd) {
+  background: var(--corDerrota);
+}
+
+.particula:nth-child(3n) {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.particula:nth-child(5n) {
+  width: 6px;
+  height: 6px;
+  animation-delay: 100ms;
+}
+
+.particula:nth-child(7n) {
+  animation-delay: 200ms;
+}
+
+.saindo {
+  animation: desaparecer 300ms ease forwards;
+}
+
+@keyframes desaparecer {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

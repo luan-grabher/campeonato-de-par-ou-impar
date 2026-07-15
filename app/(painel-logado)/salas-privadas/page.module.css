@@ -1,0 +1,198 @@
+.pagina {
+  padding: 48px 24px;
+  min-height: 100dvh;
+}
+
+.container {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.cabecalho {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+.titulo {
+  font-size: clamp(1.5rem, 3.5vw, 2.25rem);
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.subtitulo {
+  color: var(--corTextoSecundario);
+  font-size: 1.125rem;
+}
+
+.botaoCriar {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: var(--corDestaquePrimario);
+  color: white;
+  border-radius: var(--raioPequeno);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  transition: all var(--transicaoMedia);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.botaoCriar:hover {
+  background: var(--corDestaquePrimarioHover);
+  transform: translateY(-1px);
+  box-shadow: var(--sombraDoDestaque);
+}
+
+/* Cards */
+
+.opcoes {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+.card {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 24px;
+  background: var(--corFundoSuperficie);
+  border: 1px solid var(--corBorda);
+  border-radius: var(--raioMedio);
+  transition: all var(--transicaoMedia);
+  animation: subir 0.5s ease-out both;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  border-color: var(--corDestaquePrimario);
+  background: var(--corFundoElevado);
+  box-shadow: 0 8px 32px rgba(124, 92, 255, 0.1);
+}
+
+.cardSeta {
+  flex-shrink: 0;
+  color: var(--corTextoSecundario);
+  align-self: center;
+  transition: transform var(--transicaoMedia);
+}
+
+.card:hover .cardSeta {
+  transform: translateX(4px);
+  color: var(--corDestaquePrimario);
+}
+
+.cardEntrar {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 24px;
+  background: var(--corFundoSuperficie);
+  border: 1px solid var(--corBorda);
+  border-radius: var(--raioMedio);
+  animation: subir 0.5s ease-out 0.1s both;
+}
+
+.cardIcone {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(124, 92, 255, 0.1);
+  border-radius: var(--raioPequeno);
+  color: var(--corDestaquePrimario);
+}
+
+.cardInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.cardEntrarInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.cardNome {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.cardDescricao {
+  font-size: 0.875rem;
+  color: var(--corTextoSecundario);
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.dicaCodigo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8125rem;
+  color: var(--corTextoSecundario);
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: var(--raioPequeno);
+}
+
+.dicaCodigo code {
+  font-family: monospace;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--corDestaquePrimario);
+  letter-spacing: 0.04em;
+}
+
+/* Info adicional */
+
+.infoAdicional {
+  padding: 24px;
+  background: var(--corFundoSuperficie);
+  border: 1px dashed var(--corBorda);
+  border-radius: var(--raioMedio);
+}
+
+.infoTitulo {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.infoLista {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-left: 20px;
+}
+
+.infoLista li {
+  font-size: 0.9375rem;
+  color: var(--corTextoSecundario);
+  line-height: 1.5;
+}
+
+.infoLista li::marker {
+  color: var(--corDestaquePrimario);
+  font-weight: 700;
+}
+
+@keyframes subir {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

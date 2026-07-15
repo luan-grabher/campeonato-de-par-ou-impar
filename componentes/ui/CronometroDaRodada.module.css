@@ -1,0 +1,44 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.tempo {
+  font-size: 2.5rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--corTextoPrincipal);
+  line-height: 1;
+}
+
+.tempoAlerta {
+  color: var(--corDestaqueAlerta);
+  animation: vibrar 500ms ease infinite;
+}
+
+.barraContainer {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.barra {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--corDestaquePrimario);
+  transition: width 1s linear;
+}
+
+.barraAlerta {
+  background: var(--corDestaqueAlerta);
+}
+
+.label {
+  font-size: 0.75rem;
+  color: var(--corTextoSecundario);
+  font-weight: 500;
+}

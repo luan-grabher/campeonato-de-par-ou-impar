@@ -1,0 +1,39 @@
+.pagina {
+  padding: 48px 24px;
+  min-height: 100dvh;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.titulo {
+  font-size: clamp(1.5rem, 3.5vw, 2.25rem);
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.subtitulo {
+  color: var(--corTextoSecundario);
+  font-size: 1.125rem;
+  margin-bottom: 32px;
+}
+
+.contador {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(255, 215, 0, 0.08);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  border-radius: var(--raioPequeno);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #ffd700;
+  margin-bottom: 32px;
+}
+
+.iconeContador {
+  flex-shrink: 0;
+}

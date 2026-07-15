@@ -1,0 +1,230 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+/* ── Área central de jogo ── */
+
+.areaDeJogo {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 24px;
+  background: var(--corFundoSuperficie);
+  border: 1px solid var(--corBorda);
+  border-radius: var(--raioMedio);
+  animation: aparecer var(--transicaoMedia) ease;
+}
+
+.secao {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tituloSecao {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--corTextoSecundario);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ── Grade de números 0-10 ── */
+
+.gridNumeros {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+
+.botaoNumero {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 8px;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--corTextoPrincipal);
+  background: var(--corFundoElevado);
+  border: 1px solid var(--corBorda);
+  border-radius: var(--raioPequeno);
+  transition: all var(--transicaoRapida);
+  cursor: pointer;
+  user-select: none;
+}
+
+.botaoNumero:hover {
+  border-color: var(--corDestaquePrimario);
+  background: rgba(124, 92, 255, 0.08);
+}
+
+.numeroSelecionado {
+  background: var(--corDestaquePrimario);
+  border-color: var(--corDestaquePrimario);
+  box-shadow: var(--sombraDoDestaque);
+}
+
+.numeroSelecionado:hover {
+  background: var(--corDestaquePrimarioHover);
+}
+
+/* ── Aguardando ── */
+
+.aguardando {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 48px 24px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--corBorda);
+  border-top-color: var(--corDestaquePrimario);
+  border-radius: 50%;
+  animation: spin 800ms linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.textoAguardando {
+  color: var(--corTextoSecundario);
+  font-size: 1rem;
+}
+
+/* ── Revelação ── */
+
+.revelacao {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 16px 0;
+}
+
+.secaoResultado {
+  text-align: center;
+}
+
+.jogadaInfo {
+  font-size: 1.25rem;
+  margin-top: 4px;
+}
+
+.jogadaInfo strong {
+  font-size: 1.5rem;
+}
+
+.par {
+  color: var(--corVitoria);
+  font-weight: 700;
+}
+
+.impar {
+  color: var(--corDestaquePrimario);
+  font-weight: 700;
+}
+
+/* ── Erro ── */
+
+.erro {
+  padding: 12px 16px;
+  background: rgba(255, 94, 122, 0.1);
+  border: 1px solid var(--corDerrota);
+  border-radius: var(--raioPequeno);
+  color: var(--corDerrota);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+/* ── Fim de partida ── */
+
+.fimPartida {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 32px 24px;
+  text-align: center;
+}
+
+.tituloFim {
+  font-size: 1.75rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--corDestaquePrimario), var(--corDestaqueSecundario));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.resultadoFimVitoria {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--corVitoria);
+}
+
+.resultadoFimDerrota {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--corDerrota);
+}
+
+.resultadoFimEmpate {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--corEmpate);
+}
+
+.placarFinal {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 24px;
+  background: var(--corFundoElevado);
+  border-radius: var(--raioPequeno);
+  font-size: 1.125rem;
+}
+
+.placarItem {
+  color: var(--corTextoPrincipal);
+}
+
+.placarItem strong {
+  font-size: 1.5rem;
+}
+
+.placarDivisor {
+  color: var(--corTextoSecundario);
+  font-weight: 600;
+}
+
+/* ── Histórico ── */
+
+.historico {
+  margin-top: 8px;
+}
+
+/* ── Animações ── */
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

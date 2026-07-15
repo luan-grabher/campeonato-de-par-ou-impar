@@ -1,0 +1,134 @@
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 70vh;
+  padding: 24px;
+  animation: aparecer 0.5s ease-out;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 48px 40px;
+  background: var(--corFundoSuperficie);
+  border: 1px solid var(--corBorda);
+  border-radius: var(--raioGrande);
+  max-width: 440px;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+.icone {
+  margin-bottom: 16px;
+}
+
+.iconeVitoria {
+  color: var(--corVitoria);
+  filter: drop-shadow(0 0 20px rgba(0, 212, 170, 0.4));
+}
+
+.iconeDerrota {
+  color: var(--corDerrota);
+  filter: drop-shadow(0 0 20px rgba(255, 94, 122, 0.4));
+}
+
+.titulo {
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.vitoria {
+  color: var(--corVitoria);
+}
+
+.derrota {
+  color: var(--corDerrota);
+}
+
+.subtitulo {
+  font-size: 0.95rem;
+  color: var(--corTextoSecundario);
+  line-height: 1.5;
+  margin-bottom: 32px;
+}
+
+.placar {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.placarItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.placarLabel {
+  font-size: 0.85rem;
+  color: var(--corTextoSecundario);
+}
+
+.placarValor {
+  font-size: 2.5rem;
+  font-weight: 800;
+}
+
+.placarDivisor {
+  font-size: 1.5rem;
+  color: var(--corTextoSecundario);
+  font-weight: 700;
+}
+
+.eloContainer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 24px;
+  background: var(--corFundoElevado);
+  border-radius: var(--raioMedio);
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.eloLabel {
+  font-size: 0.85rem;
+  color: var(--corTextoSecundario);
+}
+
+.eloValor {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--corDestaquePrimario);
+}
+
+.eloAlteracao {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--corVitoria);
+}
+
+.acoes {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.acoesSecundarias {
+  display: flex;
+  gap: 12px;
+}
+
+@keyframes aparecer {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}

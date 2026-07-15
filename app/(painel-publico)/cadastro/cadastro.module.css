@@ -1,0 +1,45 @@
+.container {
+  width: 100%;
+  max-width: 440px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 40px 32px;
+  background: var(--corFundoSuperficie);
+  border: 1px solid var(--corBorda);
+  border-radius: var(--raioMedio);
+  animation: aparecer 400ms ease forwards;
+}
+
+.titulo {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--corTextoPrincipal);
+  text-align: center;
+}
+
+.subtitulo {
+  font-size: 0.9375rem;
+  color: var(--corTextoSecundario);
+  text-align: center;
+  margin-top: -12px;
+}
+
+.termos {
+  font-size: 0.75rem;
+  color: var(--corTextoDesabilitado);
+  text-align: center;
+  line-height: 1.5;
+}
+
+.termos a {
+  color: var(--corDestaquePrimario);
+}
+
+.termos a:hover {
+  text-decoration: underline;
+}

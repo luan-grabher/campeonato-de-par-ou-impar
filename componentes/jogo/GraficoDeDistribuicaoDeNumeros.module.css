@@ -1,0 +1,68 @@
+.container {
+  background: var(--corFundoSuperficie);
+  border: 1px solid var(--corBorda);
+  border-radius: var(--raioMedio);
+  padding: 20px;
+}
+
+.titulo {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--corTextoSecundario);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 16px;
+}
+
+.grafico {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 140px;
+}
+
+.coluna {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.barraWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.rotuloFrequencia {
+  font-size: 0.625rem;
+  color: var(--corTextoSecundario);
+  margin-bottom: 2px;
+  font-weight: 600;
+}
+
+.barra {
+  width: 100%;
+  max-width: 28px;
+  background: linear-gradient(180deg, var(--corDestaquePrimario), #6a4ce0);
+  border-radius: 4px 4px 0 0;
+  transition: height var(--transicaoMedia);
+  min-height: 0;
+}
+
+.barra:hover {
+  opacity: 0.8;
+  box-shadow: 0 0 8px rgba(124, 92, 255, 0.4);
+}
+
+.rotuloNumero {
+  font-size: 0.6875rem;
+  color: var(--corTextoSecundario);
+  margin-top: 6px;
+  font-weight: 600;
+}

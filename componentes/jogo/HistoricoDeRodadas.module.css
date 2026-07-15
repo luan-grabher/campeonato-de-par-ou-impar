@@ -1,0 +1,94 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.titulo {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--corTextoSecundario);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--corFundoSuperficie);
+  border: 1px solid var(--corBorda);
+  border-radius: var(--raioPequeno);
+  transition: border-color var(--transicaoRapida);
+}
+
+.itemVitoria {
+  border-left: 3px solid var(--corVitoria);
+}
+
+.itemDerrota {
+  border-left: 3px solid var(--corDerrota);
+}
+
+.rotuloRodada {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--corTextoSecundario);
+  min-width: 60px;
+}
+
+.jogadas {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.jogada {
+  font-size: 0.8125rem;
+  color: var(--corTextoPrincipal);
+}
+
+.jogada strong {
+  font-weight: 700;
+}
+
+.par {
+  color: var(--corVitoria);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.impar {
+  color: var(--corDestaquePrimario);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.vs {
+  font-size: 0.6875rem;
+  color: var(--corTextoDesabilitado);
+  font-weight: 600;
+}
+
+.resultado {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.resultadoVitoria {
+  color: var(--corVitoria);
+}
+
+.resultadoDerrota {
+  color: var(--corDerrota);
+}
