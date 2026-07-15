@@ -135,8 +135,18 @@ export default function TabuleiroDeParOuImpar({
     paridadeSelecionada,
   ])
 
-  function handleJogarNovamente() {
-    router.push('/partida-rapida-ia')
+  async function handleJogarNovamente() {
+    try {
+      const { iniciarPartidaContraIa } = await import(
+        '@/servidor/acoes/iniciarPartidaContraIa'
+      )
+      const novaPartida = await iniciarPartidaContraIa(nomeDoJogador)
+      router.push(
+        `/partida-rapida-ia/jogo?id=${novaPartida.idDaPartida}&nome=${encodeURIComponent(nomeDoJogador)}`
+      )
+    } catch {
+      router.push('/partida-rapida-ia')
+    }
   }
 
   const numeros = Array.from(

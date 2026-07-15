@@ -33,6 +33,7 @@ function ConteudoDoJogo() {
     <div className={styles.pagina}>
       <div className={styles.container}>
         <TabuleiroDeParOuImpar
+          key={id}
           idDaPartida={id}
           nomeDoJogador={nome}
           totalDeRodadas={3}
