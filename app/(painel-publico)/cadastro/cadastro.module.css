@@ -1,6 +1,7 @@
 .container {
   width: 100%;
   max-width: 440px;
+  margin: 40px auto;
 }
 
 .card {
@@ -27,6 +28,33 @@
   color: var(--corTextoSecundario);
   text-align: center;
   margin-top: -12px;
+}
+
+.botoesOAuth {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.divisor {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.linha {
+  flex: 1;
+  height: 1px;
+  background: var(--corBorda);
+}
+
+.ou {
+  font-size: 0.8125rem;
+  color: var(--corTextoDesabilitado);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .termos {

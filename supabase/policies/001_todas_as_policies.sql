@@ -13,10 +13,14 @@ CREATE POLICY "perfis_leitura_publica" ON perfis
   FOR SELECT
   USING (true);
 
--- Inserção: apenas o próprio usuário pode criar seu perfil (via trigger, mas política de segurança)
+-- Inserção: o trigger de signup (sem auth) ou o próprio usuário autenticado
 CREATE POLICY "perfis_insercao_proprio" ON perfis
   FOR INSERT
   WITH CHECK (id_usuario = auth.uid());
+
+CREATE POLICY "perfis_insercao_trigger_signup" ON perfis
+  FOR INSERT
+  WITH CHECK (auth.role() IS NULL);
 
 -- Atualização: apenas o próprio usuário pode alterar seu perfil
 CREATE POLICY "perfis_atualizacao_proprio" ON perfis

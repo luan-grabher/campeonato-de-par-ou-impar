@@ -13,7 +13,7 @@ export default function FormularioDeCadastro() {
 
   useEffect(() => {
     if (estado?.sucesso) {
-      router.push('/login?mensagem=Conta criada com sucesso! Verifique seu email.')
+      router.push('/partida-rapida')
     }
   }, [estado, router])
 
@@ -50,9 +50,11 @@ export default function FormularioDeCadastro() {
         minLength={6}
       />
 
-      {estado?.erro && !estado.erro.includes('email') && !estado.erro.includes('senha') && (
+      {estado?.erro && (
         <p className={styles.erroGlobal} role="alert">
-          {estado.erro}
+          {typeof estado.erro === 'string'
+            ? estado.erro
+            : 'Erro inesperado. Tente novamente.'}
         </p>
       )}
 

@@ -3,14 +3,11 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
-  Zap,
-  Trophy,
-  Users,
+  Gamepad2,
   BarChart3,
   User,
   HeartHandshake,
   History,
-  Skull,
   Award,
   ShoppingBag,
   Backpack,
@@ -25,12 +22,9 @@ interface LinkNav {
 }
 
 const links: LinkNav[] = [
-  { href: '/partida-rapida', icone: Zap, rotulo: 'Jogar' },
-  { href: '/modo-sobrevivencia', icone: Skull, rotulo: 'Sobrevivência' },
+  { href: '/jogar', icone: Gamepad2, rotulo: 'Jogar' },
   { href: '/conquistas', icone: Award, rotulo: 'Conquistas' },
   { href: '/partidas', icone: History, rotulo: 'Partidas' },
-  { href: '/campeonatos', icone: Trophy, rotulo: 'Campeonatos' },
-  { href: '/salas-privadas', icone: Users, rotulo: 'Salas Privadas' },
   { href: '/loja', icone: ShoppingBag, rotulo: 'Loja' },
   { href: '/inventario', icone: Backpack, rotulo: 'Inventário' },
   { href: '/ranking', icone: BarChart3, rotulo: 'Ranking' },

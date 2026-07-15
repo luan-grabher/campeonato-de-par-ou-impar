@@ -35,7 +35,7 @@ export default function CabecalhoLogado() {
     <header className={styles.cabecalho}>
       <div className={styles.container}>
         {/* Logo */}
-        <Link href="/partida-rapida" className={styles.logo}>
+        <Link href="/jogar" className={styles.logo}>
           <span className={styles.logoPar}>PAR</span>
           <span className={styles.logoOu}>ou</span>
           <span className={styles.logoImpar}>ÍMPAR</span>

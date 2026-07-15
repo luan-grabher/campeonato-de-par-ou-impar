@@ -216,14 +216,24 @@ CREATE INDEX idx_perfis_elo ON perfis(elo DESC);
 -- Trigger: criar perfil automático no signup
 -- ============================================================
 CREATE OR REPLACE FUNCTION criar_perfil_ao_signup()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $$
 BEGIN
-  INSERT INTO perfis (id_usuario, nome)
-  VALUES (NEW.id, COALESCE(NEW.raw_user_meta_data->>'full_name', 'Jogador'));
+  INSERT INTO public.perfis (id_usuario, nome)
+  VALUES (
+    NEW.id,
+    COALESCE(NEW.raw_user_meta_data ->> 'full_name', 'Jogador')
+  );
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$;
+
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE FUNCTION criar_perfil_ao_signup();
+  FOR EACH ROW
+  EXECUTE FUNCTION criar_perfil_ao_signup();

@@ -7,7 +7,7 @@ import {
   useState,
   type ReactNode,
 } from 'react'
-import { createClient } from '@supabase/supabase-js'
+import { createBrowserClient } from '@supabase/ssr'
 
 /* ------------------------------------------------------------------ */
 /*  Tipos                                                             */
@@ -48,15 +48,21 @@ export function useAutenticacao() {
 /*  Provider                                                          */
 /* ------------------------------------------------------------------ */
 
-const supabaseUrl =
-  process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
-const supabaseAnonKey =
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ''
+function criarJogadorDaSessao(
+  sessao: import('@supabase/supabase-js').Session | null
+): Jogador | null {
+  if (!sessao?.user) return null
 
-const supabase =
-  supabaseUrl && supabaseAnonKey
-    ? createClient(supabaseUrl, supabaseAnonKey)
-    : null
+  return {
+    id: sessao.user.id,
+    apelido:
+      sessao.user.user_metadata?.apelido ??
+      sessao.user.email?.split('@')[0] ??
+      'Jogador',
+    avatar_url: sessao.user.user_metadata?.avatar_url,
+    elo: sessao.user.user_metadata?.elo ?? 'ferro',
+  }
+}
 
 export default function ProvedorDeAutenticacao({
   children,
@@ -65,6 +71,14 @@ export default function ProvedorDeAutenticacao({
 }) {
   const [jogador, setJogador] = useState<Jogador | null>(null)
   const [carregando, setCarregando] = useState(true)
+
+  const supabase =
+    typeof window !== 'undefined'
+      ? createBrowserClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
+        )
+      : null
 
   /* Sincroniza sessão com o Supabase */
   useEffect(() => {
@@ -76,40 +90,18 @@ export default function ProvedorDeAutenticacao({
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, sessao) => {
-      if (sessao?.user) {
-        setJogador({
-          id: sessao.user.id,
-          apelido:
-            sessao.user.user_metadata?.apelido ??
-            sessao.user.email?.split('@')[0] ??
-            'Jogador',
-          avatar_url: sessao.user.user_metadata?.avatar_url,
-          elo: sessao.user.user_metadata?.elo ?? 'ferro',
-        })
-      } else {
-        setJogador(null)
-      }
+      setJogador(criarJogadorDaSessao(sessao))
       setCarregando(false)
     })
 
     /* Verifica sessão existente */
     supabase.auth.getSession().then(({ data: { session: sessao } }) => {
-      if (sessao?.user) {
-        setJogador({
-          id: sessao.user.id,
-          apelido:
-            sessao.user.user_metadata?.apelido ??
-            sessao.user.email?.split('@')[0] ??
-            'Jogador',
-          avatar_url: sessao.user.user_metadata?.avatar_url,
-          elo: sessao.user.user_metadata?.elo ?? 'ferro',
-        })
-      }
+      setJogador(criarJogadorDaSessao(sessao))
       setCarregando(false)
     })
 
     return () => subscription.unsubscribe()
-  }, [])
+  }, [supabase])
 
   /* Actions */
   const entrar = async (email: string, senha: string) => {

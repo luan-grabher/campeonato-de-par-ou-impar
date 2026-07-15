@@ -1,0 +1,233 @@
+/* ════════════════════════════════════════
+   Página /jogar — Hub de modos de jogo
+   ════════════════════════════════════════ */
+
+.pagina {
+  padding: 48px 24px;
+  min-height: 100dvh;
+}
+
+.container {
+  max-width: 880px;
+  margin: 0 auto;
+}
+
+/* ── Cabeçalho ── */
+
+.cabecalho {
+  margin-bottom: 48px;
+  text-align: center;
+  animation: aparecer 0.5s ease-out both;
+}
+
+.titulo {
+  font-size: clamp(1.5rem, 3.5vw, 2.25rem);
+  font-weight: 800;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, var(--corTextoPrincipal) 60%, var(--corDestaquePrimario));
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.subtitulo {
+  color: var(--corTextoSecundario);
+  font-size: 1.125rem;
+}
+
+/* ── Grid de modos ── */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+/* ── Card base ── */
+
+.card {
+  position: relative;
+  display: block;
+  border-radius: var(--raioMedio);
+  overflow: hidden;
+  transition: transform var(--transicaoMedia), box-shadow var(--transicaoMedia);
+  animation: subir 0.5s ease-out both;
+}
+
+.card:nth-child(1) { animation-delay: 0.05s; }
+.card:nth-child(2) { animation-delay: 0.12s; }
+.card:nth-child(3) { animation-delay: 0.19s; }
+.card:nth-child(4) { animation-delay: 0.26s; }
+.card:nth-child(5) { animation-delay: 0.33s; }
+
+/* Borda com cor do modo */
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    var(--corDoModo),
+    color-mix(in srgb, var(--corDoModo) 40%, transparent)
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  transition: opacity var(--transicaoMedia);
+}
+
+.card:hover::before {
+  opacity: 0.8;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    0 0 40px color-mix(in srgb, var(--corDoModo) 10%, transparent);
+}
+
+/* ── Glow interno ── */
+
+.cardGlow {
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    circle at top right,
+    color-mix(in srgb, var(--corDoModo) 8%, transparent),
+    transparent 70%
+  );
+  pointer-events: none;
+  transition: opacity var(--transicaoMedia);
+  opacity: 0;
+}
+
+.card:hover .cardGlow {
+  opacity: 1;
+}
+
+/* ── Card destaque (Partida Rápida) ── */
+
+.cardDestaque {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--corDoModo) 6%, var(--corFundoSuperficie)),
+    var(--corFundoSuperficie)
+  );
+}
+
+.cardDestaque .cardIcone {
+  width: 56px;
+  height: 56px;
+}
+
+/* ── Conteúdo do card ── */
+
+.cardConteudo {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 28px 24px 24px;
+  min-height: 220px;
+  background: var(--corFundoSuperficie);
+  border-radius: inherit;
+  z-index: 1;
+}
+
+.card:hover .cardConteudo {
+  background: color-mix(in srgb, var(--corDoModo) 3%, var(--corFundoSuperficie));
+}
+
+/* ── Ícone ── */
+
+.cardIcone {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--raioPequeno);
+  color: var(--corDoModo);
+  transition: transform var(--transicaoMedia), box-shadow var(--transicaoMedia);
+}
+
+.card:hover .cardIcone {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--corDoModo) 20%, transparent);
+}
+
+/* ── Info ── */
+
+.cardInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.cardNome {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: var(--corTextoPrincipal);
+  transition: color var(--transicaoMedia);
+}
+
+.card:hover .cardNome {
+  color: var(--corDoModo);
+}
+
+.cardDescricao {
+  font-size: 0.875rem;
+  color: var(--corTextoSecundario);
+  line-height: 1.5;
+}
+
+/* ════════════════════════════════════════
+   Animações
+   ════════════════════════════════════════ */
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes subir {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ════════════════════════════════════════
+   Responsivo
+   ════════════════════════════════════════ */
+
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

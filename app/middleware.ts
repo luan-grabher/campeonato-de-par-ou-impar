@@ -62,7 +62,7 @@ export async function middleware(request: NextRequest) {
 
   // Se já logado tentar acessar login/cadastro, redirecionar para o dashboard
   if (estaEmRotaDeAuth && user) {
-    return NextResponse.redirect(new URL('/', request.url))
+    return NextResponse.redirect(new URL('/partida-rapida', request.url))
   }
 
   return NextResponse.next()

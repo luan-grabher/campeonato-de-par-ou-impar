@@ -13,7 +13,7 @@ export default function FormularioDeLogin() {
 
   useEffect(() => {
     if (estado?.sucesso) {
-      router.push('/painel-logado')
+      router.push('/partida-rapida')
     }
   }, [estado, router])
 

@@ -57,7 +57,7 @@ a {
 
 /* Compensação para header fixo no painel público */
 .conteudo-publico {
-  padding-top: 64px;
+  padding: 64px 16px 48px;
 }
 
 button {
