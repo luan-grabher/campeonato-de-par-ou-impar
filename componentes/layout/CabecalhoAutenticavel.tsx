@@ -4,12 +4,24 @@ import { useAutenticacao } from './ProvedorDeAutenticacao'
 import Cabecalho from './Cabecalho'
 import CabecalhoLogado from './CabecalhoLogado'
 
-export default function CabecalhoAutenticavel() {
+interface CabecalhoAutenticavelProps {
+  /** Hint do servidor: true se o cookie de sessão existe */
+  usuarioLogadoInicial?: boolean
+}
+
+export default function CabecalhoAutenticavel({
+  usuarioLogadoInicial = false,
+}: CabecalhoAutenticavelProps) {
   const { jogador, carregando } = useAutenticacao()
 
-  if (carregando) return null
+  /* Estado definitivo (cliente já resolveu) */
+  if (!carregando) {
+    if (jogador) return <CabecalhoLogado />
+    return <Cabecalho />
+  }
 
-  if (jogador) return <CabecalhoLogado />
+  /* Ainda carregando — usa hint do servidor pra evitar flicker */
+  if (usuarioLogadoInicial) return <CabecalhoLogado />
 
-  return <Cabecalho />
+  return null
 }

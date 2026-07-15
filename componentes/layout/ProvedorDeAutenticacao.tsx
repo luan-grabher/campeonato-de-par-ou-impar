@@ -5,6 +5,7 @@ import {
   useContext,
   useEffect,
   useState,
+  useMemo,
   type ReactNode,
 } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
@@ -72,13 +73,16 @@ export default function ProvedorDeAutenticacao({
   const [jogador, setJogador] = useState<Jogador | null>(null)
   const [carregando, setCarregando] = useState(true)
 
-  const supabase =
-    typeof window !== 'undefined'
-      ? createBrowserClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
-        )
-      : null
+  const supabase = useMemo(
+    () =>
+      typeof window !== 'undefined'
+        ? createBrowserClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
+          )
+        : null,
+    []
+  )
 
   /* Sincroniza sessão com o Supabase */
   useEffect(() => {

@@ -29,7 +29,20 @@ export default function CabecalhoLogado() {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
 
-  if (!jogador) return null
+  if (!jogador) {
+    return (
+      <header className={styles.cabecalho}>
+        <div className={styles.container}>
+          <Link href="/jogar" className={styles.logo}>
+            <span className={styles.logoPar}>PAR</span>
+            <span className={styles.logoOu}>ou</span>
+            <span className={styles.logoImpar}>ÍMPAR</span>
+          </Link>
+          <div className={styles.perfilPlaceholder} aria-hidden="true" />
+        </div>
+      </header>
+    )
+  }
 
   return (
     <header className={styles.cabecalho}>
