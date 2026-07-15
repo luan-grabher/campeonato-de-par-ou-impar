@@ -32,7 +32,7 @@ export default function ConteudoInicialAutenticavel() {
           </div>
         ) : (
           <div className={styles.acoes}>
-            <Link href="/cadastro" className={styles.botaoPrimario}>
+            <Link href="/partida-rapida-ia" className={styles.botaoPrimario}>
               Jogar Agora
             </Link>
             <Link href="/login" className={styles.botaoSecundario}>

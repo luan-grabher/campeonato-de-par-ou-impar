@@ -30,7 +30,7 @@ export default function Cabecalho() {
           <Link href="/login" className={styles.linkEntrar}>
             Entrar
           </Link>
-          <Link href="/cadastro" className={styles.botaoJogar}>
+          <Link href="/partida-rapida-ia" className={styles.botaoJogar}>
             Jogar Agora
           </Link>
         </div>

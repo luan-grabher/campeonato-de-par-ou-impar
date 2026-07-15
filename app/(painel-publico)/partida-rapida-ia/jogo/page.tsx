@@ -36,6 +36,8 @@ function ConteudoDoJogo() {
           idDaPartida={id}
           nomeDoJogador={nome}
           totalDeRodadas={3}
+          minimo={1}
+          maximo={2}
         />
       </div>
     </div>

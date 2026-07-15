@@ -17,10 +17,7 @@ export default function FormularioDeInicioPartida() {
     setErro(null)
 
     const nomeNormalizado = nome.trim()
-    if (!nomeNormalizado) {
-      setErro('Digite seu nome para começar.')
-      return
-    }
+    const nomeFinal = nomeNormalizado || 'Jogador'
 
     if (nomeNormalizado.length > 20) {
       setErro('Nome muito longo. Use no máximo 20 caracteres.')
@@ -34,10 +31,10 @@ export default function FormularioDeInicioPartida() {
         '@/servidor/acoes/iniciarPartidaContraIa'
       )
 
-      const resultado = await iniciarPartidaContraIa(nomeNormalizado)
+      const resultado = await iniciarPartidaContraIa(nomeFinal)
 
       router.push(
-        `/partida-rapida-ia/jogo?id=${resultado.idDaPartida}&nome=${encodeURIComponent(nomeNormalizado)}`
+        `/partida-rapida-ia/jogo?id=${resultado.idDaPartida}&nome=${encodeURIComponent(nomeFinal)}`
       )
     } catch (err) {
       const mensagem =
@@ -50,18 +47,17 @@ export default function FormularioDeInicioPartida() {
   return (
     <form className={styles.formulario} onSubmit={handleSubmit}>
       <InputTexto
-        label="Seu nome"
+        label="Seu nome (opcional)"
         placeholder="Digite seu nome"
         value={nome}
         onChange={(e) => setNome(e.target.value)}
         maxLength={20}
         erro={erro ?? undefined}
         disabled={carregando}
-        required
       />
 
       <div className={styles.infoRodadas}>
-        🎯 Melhor de <strong>3</strong> rodadas — números de <strong>0 a 10</strong>
+        🎯 Melhor de <strong>3</strong> rodadas — escolha entre <strong>1</strong> ou <strong>2</strong>
       </div>
 
       <Botao

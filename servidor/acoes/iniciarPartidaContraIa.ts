@@ -11,11 +11,7 @@ export interface IniciarPartidaResultado {
 export async function iniciarPartidaContraIa(
   nomeDoJogador: string
 ): Promise<IniciarPartidaResultado> {
-  if (!nomeDoJogador || nomeDoJogador.trim().length === 0) {
-    throw new Error('Nome do jogador é obrigatório.')
-  }
-
-  const nomeNormalizado = nomeDoJogador.trim()
+  const nomeNormalizado = nomeDoJogador.trim() || 'Jogador'
 
   if (nomeNormalizado.length > 20) {
     throw new Error('Nome muito longo. Use no máximo 20 caracteres.')

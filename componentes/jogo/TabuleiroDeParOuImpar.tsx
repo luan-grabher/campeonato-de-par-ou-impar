@@ -30,16 +30,18 @@ interface TabuleiroDeParOuImparProps {
   idDaPartida: string
   nomeDoJogador: string
   totalDeRodadas: number
+  minimo?: number
+  maximo?: number
 }
 
-const MINIMO = 0
-const MAXIMO = 10
 const INTERVALO_ANIMACAO_MS = 2500
 
 export default function TabuleiroDeParOuImpar({
   idDaPartida,
   nomeDoJogador,
   totalDeRodadas,
+  minimo = 0,
+  maximo = 10,
 }: TabuleiroDeParOuImparProps) {
   const router = useRouter()
 
@@ -138,8 +140,8 @@ export default function TabuleiroDeParOuImpar({
   }
 
   const numeros = Array.from(
-    { length: MAXIMO - MINIMO + 1 },
-    (_, i) => MINIMO + i
+    { length: maximo - minimo + 1 },
+    (_, i) => minimo + i
   )
 
   return (
@@ -160,7 +162,12 @@ export default function TabuleiroDeParOuImpar({
           <>
             <div className={styles.secao}>
               <h3 className={styles.tituloSecao}>Escolha seu número</h3>
-              <div className={styles.gridNumeros}>
+              <div
+                className={styles.gridNumeros}
+                style={{
+                  gridTemplateColumns: `repeat(${Math.min(numeros.length, 5)}, 1fr)`,
+                }}
+              >
                 {numeros.map((numero) => {
                   const selecionado = numeroSelecionado === numero
                   return (
