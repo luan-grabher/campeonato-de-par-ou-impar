@@ -73,9 +73,9 @@ export default function PaginaEditarPerfil() {
           )}
 
           <InputTexto
-            label="Nome"
+            label="Nome de usuário"
             name="nome"
-            placeholder="Seu nome de jogador"
+            placeholder="Seu nome único no jogo"
             maxLength={24}
             minLength={2}
             required

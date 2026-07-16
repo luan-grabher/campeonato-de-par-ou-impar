@@ -70,8 +70,22 @@ export async function atualizarPerfil(
       return { sucesso: false, erro: 'Usuário não autenticado.' }
     }
 
+    const nomeTrimmed = nome.trim()
+
+    // Verifica se o nome já está em uso por OUTRO usuário
+    const { data: conflito } = await supabase
+      .from('perfis')
+      .select('id_usuario')
+      .eq('nome', nomeTrimmed)
+      .neq('id_usuario', user.id)
+      .maybeSingle()
+
+    if (conflito) {
+      return { sucesso: false, erro: 'Este nome de usuário já está em uso. Escolha outro.' }
+    }
+
     const dadosAtualizacao: Record<string, string | null> = {
-      nome: nome.trim(),
+      nome: nomeTrimmed,
     }
 
     if (paisTrimmed) {
@@ -92,6 +106,10 @@ export async function atualizarPerfil(
       .eq('id_usuario', user.id)
 
     if (error) {
+      // Unique constraint violation (outra race condition)
+      if (error.code === '23505') {
+        return { sucesso: false, erro: 'Este nome de usuário já está em uso. Escolha outro.' }
+      }
       console.error('Erro ao atualizar perfil:', error)
       return { sucesso: false, erro: 'Erro ao salvar as alterações.' }
     }

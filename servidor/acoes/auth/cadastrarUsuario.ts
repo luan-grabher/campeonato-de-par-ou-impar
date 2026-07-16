@@ -25,6 +25,14 @@ function traduzirErroSupabase(mensagem: string): string {
   return mensagem
 }
 
+function validarNome(nome: string): string | null {
+  const trimmed = nome.trim()
+  if (trimmed.length < 2 || trimmed.length > 24) {
+    return 'O nome de usuário deve ter entre 2 e 24 caracteres.'
+  }
+  return null
+}
+
 export async function cadastrarUsuario(
   _estadoAnterior: ResultadoCadastro | null,
   formData: FormData
@@ -33,9 +41,10 @@ export async function cadastrarUsuario(
     const email = formData.get('email') as string
     const senha = formData.get('senha') as string
     const confirmacaoSenha = formData.get('confirmacaoSenha') as string
+    const nome = formData.get('nome') as string
 
-    if (!email || !senha) {
-      return { sucesso: false, erro: 'Email e senha são obrigatórios.' }
+    if (!email || !senha || !nome) {
+      return { sucesso: false, erro: 'Email, senha e nome de usuário são obrigatórios.' }
     }
 
     if (senha.length < 6) {
@@ -46,13 +55,30 @@ export async function cadastrarUsuario(
       return { sucesso: false, erro: 'As senhas não conferem.' }
     }
 
-    // Criar usuário direto via admin — sem enviar email de confirmação
-    const adminClient = criarClienteServidorAdmin()
+    const erroNome = validarNome(nome)
+    if (erroNome) return { sucesso: false, erro: erroNome }
 
+    // Verificar se o nome de usuário já existe
+    const adminClient = criarClienteServidorAdmin()
+    const { data: perfisExistentes } = await adminClient
+      .from('perfis')
+      .select('id_usuario')
+      .eq('nome', nome.trim())
+      .maybeSingle()
+
+    if (perfisExistentes) {
+      return { sucesso: false, erro: 'Este nome de usuário já está em uso. Escolha outro.' }
+    }
+
+    // Criar usuário direto via admin — sem enviar email de confirmação
+    // O nome de usuário vai no user_metadata para o trigger criar_perfil_ao_signup usar
     const { data, error } = await adminClient.auth.admin.createUser({
       email,
       password: senha,
       email_confirm: true,
+      user_metadata: {
+        nome_de_usuario: nome.trim(),
+      },
     })
 
     if (error) {

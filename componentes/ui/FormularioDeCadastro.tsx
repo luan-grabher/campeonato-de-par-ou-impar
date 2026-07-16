@@ -35,6 +35,16 @@ export default function FormularioDeCadastro() {
   return (
     <form action={acao} className={styles.formulario}>
       <InputTexto
+        label="Nome de usuário"
+        name="nome"
+        placeholder="Seu nome único no jogo"
+        maxLength={24}
+        minLength={2}
+        erro={estado?.erro && (estado.erro.includes('nome') || estado.erro.includes('Nome')) ? estado.erro : undefined}
+        required
+      />
+
+      <InputTexto
         label="Email"
         name="email"
         type="email"

@@ -13,13 +13,13 @@ export async function POST(req: NextRequest) {
     switch (acao) {
       case 'cadastrar': {
         const { email, senha, nome } = body ?? {}
-        if (!email || !senha) {
-          return NextResponse.json({ erro: 'Email e senha obrigatórios.' }, { status: 400 })
+        if (!email || !senha || !nome) {
+          return NextResponse.json({ erro: 'Email, senha e nome de usuário obrigatórios.' }, { status: 400 })
         }
         const formData = new FormData()
         formData.set('email', email)
         formData.set('senha', senha)
-        if (nome) formData.set('nome', nome)
+        formData.set('nome', nome)
         const resultado = await cadastrarUsuario(null, formData)
         return NextResponse.json(resultado)
       }
