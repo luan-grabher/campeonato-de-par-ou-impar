@@ -28,12 +28,10 @@ export default function FormularioDeInicioPartida() {
     setCarregando(true)
 
     try {
-      const resultado = await chamarApi('/api/partida-contra-ia/iniciar', {
-        nomeDoJogador: nomeFinal,
-      })
+      const resultado = await chamarApi('/api/partida-contra-ia/iniciar', {})
 
       router.push(
-        `/partida-rapida-ia/jogo?id=${resultado.idDaPartida}&nome=${encodeURIComponent(nomeFinal)}`
+        `/partida-rapida-ia/jogo?id=${resultado.idDaPartida}`
       )
     } catch (err) {
       const mensagem =

@@ -1,6 +1,7 @@
 'use server'
 
 import { criarClienteServidor } from '@/servidor/integracoes/supabase/criarClienteServidor'
+import { criarClienteServidorAdmin } from '@/servidor/integracoes/supabase/criarClienteServidorAdmin'
 
 interface ResultadoAtualizacao {
   sucesso: boolean
@@ -112,6 +113,18 @@ export async function atualizarPerfil(
       }
       console.error('Erro ao atualizar perfil:', error)
       return { sucesso: false, erro: 'Erro ao salvar as alterações.' }
+    }
+
+    // Sincronizar user_metadata do Auth para o header refletir o novo nome
+    if (nomeTrimmed !== user.user_metadata?.apelido) {
+      const adminClient = criarClienteServidorAdmin()
+      const { error: erroMetadata } = await adminClient.auth.admin.updateUserById(
+        user.id,
+        { user_metadata: { ...user.user_metadata, apelido: nomeTrimmed, nome_de_usuario: nomeTrimmed } }
+      )
+      if (erroMetadata) {
+        console.error('Erro ao sincronizar user_metadata:', erroMetadata)
+      }
     }
 
     return { sucesso: true }

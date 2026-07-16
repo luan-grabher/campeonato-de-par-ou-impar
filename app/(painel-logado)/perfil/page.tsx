@@ -75,6 +75,11 @@ export default async function PaginaPerfil() {
               <BadgeDeElo faixa={faixa.nome} />
               <span className={styles.pontosElo}>{perfil.elo} pts</span>
             </div>
+            {perfil.email && (
+              <div className={styles.emailWrapper}>
+                <span className={styles.email}>{perfil.email}</span>
+              </div>
+            )}
           </div>
 
           <Link href="/perfil/editar" className={styles.botaoEditar}>

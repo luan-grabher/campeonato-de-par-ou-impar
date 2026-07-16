@@ -188,11 +188,11 @@ export default function TabuleiroDeParOuImpar({
     try {
       const novaPartida = await chamarApi<IniciarPartidaResultado>(
         '/api/partida-contra-ia/iniciar',
-        { nomeDoJogador }
+        {}
       )
 
       router.push(
-        `/partida-rapida-ia/jogo?id=${novaPartida.idDaPartida}&nome=${encodeURIComponent(nomeDoJogador)}`
+        `/partida-rapida-ia/jogo?id=${novaPartida.idDaPartida}`
       )
     } catch {
       router.push('/partida-rapida-ia')

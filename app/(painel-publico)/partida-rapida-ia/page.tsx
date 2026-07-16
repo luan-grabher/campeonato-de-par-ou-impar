@@ -35,6 +35,7 @@ export default async function PaginaInicioPartidaContraIa() {
     if (user) {
       nomeDoJogador =
         user.user_metadata?.apelido ??
+        user.user_metadata?.nome_de_usuario ??
         user.email?.split('@')[0] ??
         'Jogador'
     }
@@ -46,7 +47,7 @@ export default async function PaginaInicioPartidaContraIa() {
   if (nomeDoJogador) {
     const resultado = await iniciarPartidaContraIa(nomeDoJogador)
     redirect(
-      `/partida-rapida-ia/jogo?id=${resultado.idDaPartida}&nome=${encodeURIComponent(nomeDoJogador)}`
+      `/partida-rapida-ia/jogo?id=${resultado.idDaPartida}`
     )
   }
 

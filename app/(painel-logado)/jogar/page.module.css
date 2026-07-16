@@ -144,6 +144,7 @@
   background: var(--corFundoSuperficie);
   border-radius: inherit;
   z-index: 1;
+  height: 100%;
 }
 
 .card:hover .cardConteudo {

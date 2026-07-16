@@ -6,20 +6,16 @@ import { sortearParidadeInicial } from '@/core/calculo/atribuirParidade'
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json()
-    const nomeDoJogador = (body?.nomeDoJogador as string) ?? ''
-
-    const nomeNormalizado = nomeDoJogador.trim() || 'Jogador'
-    if (nomeNormalizado.length > 20) {
-      return NextResponse.json(
-        { erro: 'Nome muito longo. Use no máximo 20 caracteres.' },
-        { status: 400 }
-      )
-    }
-
     // Verificar se o usuário está logado
     const supabase = await criarClienteServidor()
     const { data: { user } } = await supabase.auth.getUser()
+
+    // Resolver nome do jogador
+    const nomeDoJogador =
+      user?.user_metadata?.apelido ??
+      user?.user_metadata?.nome_de_usuario ??
+      user?.email?.split('@')[0] ??
+      'Jogador'
 
     const id = randomUUID()
     const totalDeRodadas = 3
@@ -53,7 +49,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ erro: 'Erro ao criar partida.' }, { status: 500 })
     }
 
-    return NextResponse.json({ idDaPartida: id, totalDeRodadas, anonimo: !user })
+    return NextResponse.json({ idDaPartida: id, totalDeRodadas, anonimo: !user, nomeDoJogador })
   } catch (erro) {
     console.error('Erro ao iniciar partida contra IA:', erro)
     return NextResponse.json({ erro: 'Erro interno ao iniciar partida.' }, { status: 500 })

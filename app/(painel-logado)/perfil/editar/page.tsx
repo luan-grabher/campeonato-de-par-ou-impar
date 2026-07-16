@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { chamarApi } from '@/hooks/usarApiCliente'
@@ -11,8 +11,30 @@ import styles from './page.module.css'
 export default function PaginaEditarPerfil() {
   const router = useRouter()
   const [carregando, setCarregando] = useState(false)
+  const [carregandoDados, setCarregandoDados] = useState(true)
   const [sucesso, setSucesso] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
+  const [nomeAtual, setNomeAtual] = useState('')
+  const [paisAtual, setPaisAtual] = useState('')
+  const [avatarAtual, setAvatarAtual] = useState('')
+
+  useEffect(() => {
+    async function carregarPerfil() {
+      try {
+        const resultado = await chamarApi<{
+          perfil: { nome: string; pais: string | null; urlDoAvatar: string | null; email?: string }
+        }>('/api/perfil', { acao: 'buscar-perfil' })
+        setNomeAtual(resultado.perfil.nome)
+        setPaisAtual(resultado.perfil.pais ?? '')
+        setAvatarAtual(resultado.perfil.urlDoAvatar ?? '')
+      } catch {
+        // Se falhar, deixa campos vazios
+      } finally {
+        setCarregandoDados(false)
+      }
+    }
+    carregarPerfil()
+  }, [])
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -66,6 +88,10 @@ export default function PaginaEditarPerfil() {
         </div>
 
         <form onSubmit={handleSubmit} className={styles.formulario}>
+          {carregandoDados ? (
+            <p className={styles.carregando}>Carregando dados do perfil...</p>
+          ) : (
+            <>
           {erro && (
             <div className={styles.erroGlobal} role="alert">
               {erro}
@@ -79,6 +105,7 @@ export default function PaginaEditarPerfil() {
             maxLength={24}
             minLength={2}
             required
+            defaultValue={nomeAtual}
           />
 
           <InputTexto
@@ -87,6 +114,7 @@ export default function PaginaEditarPerfil() {
             placeholder="Ex: BR, US, JP"
             maxLength={2}
             pattern="^[A-Za-z]{2}$"
+            defaultValue={paisAtual}
           />
 
           <InputTexto
@@ -94,6 +122,7 @@ export default function PaginaEditarPerfil() {
             name="urlDoAvatar"
             placeholder="https://exemplo.com/avatar.png"
             type="url"
+            defaultValue={avatarAtual}
           />
 
           <div className={styles.acoes}>
@@ -106,6 +135,8 @@ export default function PaginaEditarPerfil() {
               Salvar Alterações
             </Botao>
           </div>
+            </>
+          )}
         </form>
       </div>
     </div>

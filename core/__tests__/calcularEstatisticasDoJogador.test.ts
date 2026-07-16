@@ -33,6 +33,7 @@ describe('calcularEstatisticasDoJogador', () => {
   const perfilBase: PerfilDoJogador = {
     id: '123',
     nome: 'Teste',
+    email: null,
     pais: null,
     urlDoAvatar: null,
     elo: 1000,
@@ -42,6 +43,7 @@ describe('calcularEstatisticasDoJogador', () => {
     sequenciaAtual: 2,
     maiorSequencia: 5,
     numeroFavorito: null,
+    moedas: 0,
   }
 
   it('calcula taxaDeVitoria corretamente', () => {

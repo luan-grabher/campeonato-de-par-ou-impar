@@ -78,6 +78,7 @@ export async function cadastrarUsuario(
       email_confirm: true,
       user_metadata: {
         nome_de_usuario: nome.trim(),
+        apelido: nome.trim(),
       },
     })
 

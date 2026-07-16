@@ -47,6 +47,7 @@ export async function buscarPerfilCompleto(): Promise<PerfilCompleto | { erro: s
     const perfilDoJogador: PerfilDoJogador = {
       id: perfil.id_usuario as string,
       nome: perfil.nome as string,
+      email: user.email ?? null,
       pais: perfil.pais as string | null,
       urlDoAvatar: perfil.url_do_avatar as string | null,
       elo: perfil.elo as number,

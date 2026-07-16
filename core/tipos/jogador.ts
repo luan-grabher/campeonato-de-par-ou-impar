@@ -1,6 +1,7 @@
 export interface PerfilDoJogador {
   id: string
   nome: string
+  email: string | null
   pais: string | null
   urlDoAvatar: string | null
   elo: number

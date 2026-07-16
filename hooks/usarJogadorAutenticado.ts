@@ -43,6 +43,7 @@ export function usarJogadorAutenticado(): EstadoAutenticacao {
         const jogador: PerfilDoJogador = {
           id: perfil.id_usuario as string,
           nome: perfil.nome as string,
+          email: usuario.email ?? null,
           pais: perfil.pais as string | null,
           urlDoAvatar: perfil.url_do_avatar as string | null,
           elo: perfil.elo as number,
@@ -83,6 +84,7 @@ export function usarJogadorAutenticado(): EstadoAutenticacao {
         const jogador: PerfilDoJogador = {
           id: perfil.id_usuario as string,
           nome: perfil.nome as string,
+          email: usuario.email ?? null,
           pais: perfil.pais as string | null,
           urlDoAvatar: perfil.url_do_avatar as string | null,
           elo: perfil.elo as number,
