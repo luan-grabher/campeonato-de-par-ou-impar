@@ -107,11 +107,13 @@ export default function TabuleiroDeParOuImpar({
       : false
     : numeroSelecionado !== null
 
-  // Callback para quando o timer esgotar — ENVIA a jogada mesmo sem número selecionado
+  // Callback para quando o timer esgotar — ENVIA a jogada (timeout = derrota automática)
   const lidarEnviarJogadaComTimeout = useCallback(async () => {
     if (estado !== 'ESCOLHENDO') return
 
-    const numeroParaEnvio = numeroSelecionado ?? Math.floor(Math.random() * (maximo - minimo + 1)) + minimo
+    // Timeout = derrota. O número enviado é irrelevante (servidor ignora).
+    // Só precisa ser um número válido pra passar na validação mínima da rota.
+    const numeroParaEnvio = numeroSelecionado ?? 0
 
     setErro(null)
     setEstado('AGUARDANDO_RESULTADO')
@@ -209,8 +211,6 @@ export default function TabuleiroDeParOuImpar({
     numeroSelecionado,
     pontuacaoDoJogador,
     pontuacaoDaIa,
-    minimo,
-    maximo,
   ])
 
   const handleConfirmar = useCallback(async () => {

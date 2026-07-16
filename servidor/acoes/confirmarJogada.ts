@@ -80,13 +80,6 @@ function obterIntervaloDoModo(modo: string, rodadaId: string): IntervaloDeNumero
   return INTERVALO_POR_MODO[modo] ?? INTERVALO_TRADICIONAL
 }
 
-function gerarNumeroAleatorioNoIntervalo(intervalo: IntervaloDeNumeros): number {
-  return (
-    Math.floor(Math.random() * (intervalo.maximo - intervalo.minimo + 1)) +
-    intervalo.minimo
-  )
-}
-
 function obterParidadeInicial(
   partida: Record<string, unknown>
 ): Paridade {
@@ -208,51 +201,58 @@ export async function confirmarJogada(
       TEMPO_LIMITE_POR_MODO_MS[modo as ModoDeJogo] ?? 30_000
 
     const timeoutAconteceu =
-      rodadaCriadaEm !== null && Date.now() - rodadaCriadaEm > tempoLimiteMs
+      !!entrada.timeoutNoCliente ||
+      (rodadaCriadaEm !== null && Date.now() - rodadaCriadaEm > tempoLimiteMs)
 
-    let numeroParaUsar = numeroEscolhido
-    if (timeoutAconteceu) {
-      numeroParaUsar = gerarNumeroAleatorioNoIntervalo(intervalo)
-    }
+    // Validar jogada apenas se NÃO houve timeout
+    if (!timeoutAconteceu) {
+      const validacao = validarJogada({
+        numeroEscolhido,
+        intervalo,
+        modo,
+      })
 
-    // Validar jogada
-    const validacao = validarJogada({
-      numeroEscolhido: numeroParaUsar,
-      intervalo,
-      modo,
-    })
-
-    if (!validacao.valida) {
-      return { status: 'erro', mensagem: validacao.erro ?? 'Jogada inválida.' }
-    }
-
-    // Verificar paridade do jogador (apenas para PvP)
-    if (!ehIA) {
-      if (ehPrimeiro && !rodada.paridade_escolhida_pelo_primeiro) {
-        return {
-          status: 'erro',
-          mensagem: 'Paridade do primeiro jogador não definida.',
-        }
+      if (!validacao.valida) {
+        return { status: 'erro', mensagem: validacao.erro ?? 'Jogada inválida.' }
       }
-      if (ehSegundo && !rodada.paridade_escolhida_pelo_segundo) {
-        return {
-          status: 'erro',
-          mensagem: 'Paridade do segundo jogador não definida.',
+
+      if (!ehIA) {
+        if (ehPrimeiro && !rodada.paridade_escolhida_pelo_primeiro) {
+          return {
+            status: 'erro',
+            mensagem: 'Paridade do primeiro jogador não definida.',
+          }
+        }
+        if (ehSegundo && !rodada.paridade_escolhida_pelo_segundo) {
+          return {
+            status: 'erro',
+            mensagem: 'Paridade do segundo jogador não definida.',
+          }
         }
       }
     }
 
-    // Registrar jogada com idempotência
+    // Registrar jogada (ou timeout) com idempotência
     const camposAtualizar: Record<string, unknown> = {}
 
     if (ehPrimeiro) {
-      camposAtualizar.numero_do_primeiro_jogador = numeroParaUsar
-      camposAtualizar.token_de_idempotencia_do_primeiro = tokenDeIdempotencia
-      camposAtualizar.jogada_do_primeiro_confirmada = true
+      if (timeoutAconteceu) {
+        camposAtualizar.timeout_do_primeiro = true
+        camposAtualizar.jogada_do_primeiro_confirmada = true
+      } else {
+        camposAtualizar.numero_do_primeiro_jogador = numeroEscolhido
+        camposAtualizar.token_de_idempotencia_do_primeiro = tokenDeIdempotencia
+        camposAtualizar.jogada_do_primeiro_confirmada = true
+      }
     } else {
-      camposAtualizar.numero_do_segundo_jogador = numeroParaUsar
-      camposAtualizar.token_de_idempotencia_do_segundo = tokenDeIdempotencia
-      camposAtualizar.jogada_do_segundo_confirmada = true
+      if (timeoutAconteceu) {
+        camposAtualizar.timeout_do_segundo = true
+        camposAtualizar.jogada_do_segundo_confirmada = true
+      } else {
+        camposAtualizar.numero_do_segundo_jogador = numeroEscolhido
+        camposAtualizar.token_de_idempotencia_do_segundo = tokenDeIdempotencia
+        camposAtualizar.jogada_do_segundo_confirmada = true
+      }
     }
 
     const { error: erroAtualizacao } = await supabaseAdmin
@@ -350,36 +350,67 @@ export async function confirmarJogada(
     }
 
     // === AMBOS JOGARAM — CALCULAR RESULTADO ===
-    const numeroPrimeiro = rodadaAtualizada.numero_do_primeiro_jogador as number
-    const numeroSegundo = rodadaAtualizada.numero_do_segundo_jogador as number
-    const paridadePrimeiro = obterParidadeComoParidade(
-      rodadaAtualizada.paridade_escolhida_pelo_primeiro
-    )
+    const timeoutPrimeiro = !!rodadaAtualizada.timeout_do_primeiro
+    const timeoutSegundo = !!rodadaAtualizada.timeout_do_segundo
 
     let resultado: ReturnType<typeof calcularResultadoDaRodada>
+    let vencedorId: string | null
 
-    if (modo === 'invisivel') {
-      const resultadoInvisivel = calcularResultadoDoModoInvisivel(
-        numeroPrimeiro,
-        numeroSegundo
-      )
-      const soma = numeroPrimeiro + numeroSegundo
+    if (timeoutPrimeiro && timeoutSegundo) {
+      // Ambos timeout — rodada sem vencedor (empate)
+      vencedorId = null
       resultado = {
-        somaDosNumeros: soma,
-        paridadeResultante: soma % 2 === 0 ? 'par' : 'impar',
-        primeiroJogadorVenceu: resultadoInvisivel.primeiroJogadorVenceu,
+        somaDosNumeros: 0,
+        paridadeResultante: 'par' as const,
+        primeiroJogadorVenceu: false,
+      }
+    } else if (timeoutPrimeiro) {
+      // Primeiro timeout → segundo vence
+      vencedorId = partida.id_do_segundo_jogador as string
+      resultado = {
+        somaDosNumeros: 0,
+        paridadeResultante: 'par' as const,
+        primeiroJogadorVenceu: false,
+      }
+    } else if (timeoutSegundo) {
+      // Segundo timeout → primeiro vence
+      vencedorId = partida.id_do_primeiro_jogador as string
+      resultado = {
+        somaDosNumeros: 0,
+        paridadeResultante: 'par' as const,
+        primeiroJogadorVenceu: true,
       }
     } else {
-      resultado = calcularResultadoDaRodada(
-        numeroPrimeiro,
-        numeroSegundo,
-        paridadePrimeiro
+      // Nenhum timeout — calcular resultado normal
+      const numeroPrimeiro = rodadaAtualizada.numero_do_primeiro_jogador as number
+      const numeroSegundo = rodadaAtualizada.numero_do_segundo_jogador as number
+      const paridadePrimeiro = obterParidadeComoParidade(
+        rodadaAtualizada.paridade_escolhida_pelo_primeiro
       )
-    }
 
-    const vencedorId = resultado.primeiroJogadorVenceu
-      ? partida.id_do_primeiro_jogador
-      : partida.id_do_segundo_jogador
+      if (modo === 'invisivel') {
+        const resultadoInvisivel = calcularResultadoDoModoInvisivel(
+          numeroPrimeiro,
+          numeroSegundo
+        )
+        const soma = numeroPrimeiro + numeroSegundo
+        resultado = {
+          somaDosNumeros: soma,
+          paridadeResultante: soma % 2 === 0 ? 'par' : 'impar',
+          primeiroJogadorVenceu: resultadoInvisivel.primeiroJogadorVenceu,
+        }
+      } else {
+        resultado = calcularResultadoDaRodada(
+          numeroPrimeiro,
+          numeroSegundo,
+          paridadePrimeiro
+        )
+      }
+
+      vencedorId = resultado.primeiroJogadorVenceu
+        ? partida.id_do_primeiro_jogador
+        : partida.id_do_segundo_jogador
+    }
 
     // Atualizar rodada com resultado
     await supabaseAdmin
@@ -396,7 +427,7 @@ export async function confirmarJogada(
       numeroDaRodada,
       somaDosNumeros: resultado.somaDosNumeros,
       paridadeResultante: resultado.paridadeResultante,
-      vencedorId: vencedorId!,
+      vencedorId: vencedorId ?? '',
       primeiroJogadorVenceu: resultado.primeiroJogadorVenceu,
     }
 
