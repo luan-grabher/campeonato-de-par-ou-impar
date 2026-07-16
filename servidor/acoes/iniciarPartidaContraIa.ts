@@ -29,7 +29,7 @@ export async function iniciarPartidaContraIa(
   const { error: erroPartida } = await supabaseAdmin.from('partidas').insert({
     id,
     modo: 'classico',
-    tipo: 'contra_ia',
+    tipo: 'partida_contra_ia',
     id_do_primeiro_jogador: user?.id ?? null,
     id_do_segundo_jogador: null,
     status: 'em_andamento',
@@ -38,7 +38,7 @@ export async function iniciarPartidaContraIa(
   })
 
   if (erroPartida) {
-    console.error('Erro ao criar partida:', erroPartida)
+    console.error('Erro ao criar partida:', JSON.stringify(erroPartida, Object.getOwnPropertyNames(erroPartida)))
     throw new Error('Erro ao criar partida.')
   }
 
