@@ -11,7 +11,7 @@ import AnimacaoDeRevelacao from '@/componentes/ui/AnimacaoDeRevelacao'
 import Botao from '@/componentes/ui/Botao'
 import { chamarApi } from '@/hooks/usarApiCliente'
 import { usarAssinaturaRealtime } from '@/hooks/usarAssinaturaRealtime'
-import { usarTimerRelampago } from '@/hooks/usarTimerRelampago'
+
 import type { PerfilDoJogador } from '@/core/tipos/jogador'
 import type { DadosDaPartida } from '@/core/tipos/partida'
 import type { ModoDeJogo } from '@/core/tipos/partida'
@@ -122,48 +122,6 @@ export default function TelaDePartida({
   const [intervaloAtual, setIntervaloAtual] = useState<string | null>(null)
 
   const { eventos, conectado } = usarAssinaturaRealtime(idDaPartida, jogador.id)
-
-  // Hook do timer relâmpago
-  const lidarTempoEsgotadoRelampago = useCallback(async () => {
-    if (estadoJogo !== 'aguardando_jogada' || !numeroSelecionado) return
-
-    setCarregando(true)
-    setErro(null)
-    setEstadoJogo('jogada_enviada')
-
-    // No timeout, enviar jogada aleatória
-    const numeroAleatorio = numeroSelecionado ?? Math.floor(Math.random() * 2) + 1
-    const paridadeAleatoria = paridadeDoJogador ?? (Math.random() < 0.5 ? 'par' : 'impar')
-
-    const resultado = await chamarApi<{ status: string; mensagem?: string }>(
-      '/api/partidas/confirmar-jogada-relampago',
-      {
-        idDaPartida,
-        numeroDaRodada: rodadaAtual,
-        numeroEscolhido: numeroAleatorio,
-        paridadeEscolhida: paridadeAleatoria,
-        tokenDeIdempotencia: tokenRef.current,
-        timeoutNoCliente: true,
-      }
-    )
-
-    setCarregando(false)
-
-    if (resultado.status === 'erro') {
-      setErro(resultado.mensagem ?? 'Erro ao confirmar jogada.')
-      setEstadoJogo('aguardando_jogada')
-      return
-    }
-  }, [estadoJogo, numeroSelecionado, paridadeDoJogador, idDaPartida, rodadaAtual])
-
-  const {
-    restante: tempoRelampagoRestante,
-    alerta: tempoRelampagoAlerta,
-  } = usarTimerRelampago({
-    segundos: tempoLimite,
-    emExecucao: ehRelampago && estadoJogo === 'aguardando_jogada',
-    onTempoEsgotado: lidarTempoEsgotadoRelampago,
-  })
 
   // Efeito para processar eventos Realtime
   useEffect(() => {
@@ -295,48 +253,54 @@ export default function TelaDePartida({
     setErro(null)
     setEstadoJogo('jogada_enviada')
 
-    if (ehRelampago) {
-      const resultado = await chamarApi<{ status: string; mensagem?: string }>(
-        '/api/partidas/confirmar-jogada-relampago',
-        {
-          idDaPartida,
-          numeroDaRodada: rodadaAtual,
-          numeroEscolhido: numeroSelecionado,
-          tokenDeIdempotencia: tokenRef.current,
-        }
-      )
-
-      setCarregando(false)
-
-      if (resultado.status === 'erro') {
-        setErro(resultado.mensagem ?? 'Erro ao confirmar jogada.')
-        setEstadoJogo('aguardando_jogada')
-        return
+    const resultado = await chamarApi<{ status: string; mensagem?: string }>(
+      '/api/partidas/confirmar-jogada',
+      {
+        idDaPartida,
+        numeroDaRodada: rodadaAtual,
+        numeroEscolhido: numeroSelecionado,
+        tokenDeIdempotencia: tokenRef.current,
       }
-    } else {
-      const resultado = await chamarApi<{ status: string; mensagem?: string }>(
-        '/api/partidas/confirmar-jogada',
-        {
-          idDaPartida,
-          numeroDaRodada: rodadaAtual,
-          numeroEscolhido: numeroSelecionado,
-          tokenDeIdempotencia: tokenRef.current,
-        }
-      )
+    )
 
-      setCarregando(false)
+    setCarregando(false)
 
-      if (resultado.status === 'erro') {
-        setErro(resultado.mensagem ?? 'Erro ao confirmar jogada.')
-        setEstadoJogo('aguardando_jogada')
-        return
-      }
+    if (resultado.status === 'erro') {
+      setErro(resultado.mensagem ?? 'Erro ao confirmar jogada.')
+      setEstadoJogo('aguardando_jogada')
+      return
     }
-  }, [numeroSelecionado, paridadeEscolhidaDesempate, ehDesempate, vencedorDaPrimeiraRodada, jogador.id, idDaPartida, rodadaAtual, ehRelampago])
+  }, [numeroSelecionado, paridadeEscolhidaDesempate, ehDesempate, vencedorDaPrimeiraRodada, jogador.id, idDaPartida, rodadaAtual])
 
-  const lidarTempoEsgotado = useCallback(() => {
-    setErro('Tempo esgotado!')
-  }, [])
+  const lidarEnviarJogadaComTimeout = useCallback(async () => {
+    if (estadoJogo !== 'aguardando_jogada') return
+
+    // Se não tiver número selecionado, escolher aleatório dentro do intervalo do modo
+    const numeroParaEnvio = numeroSelecionado ?? Math.floor(Math.random() * maxNumeros) + (maxNumeros <= 2 ? 1 : 0)
+
+    setCarregando(true)
+    setErro(null)
+    setEstadoJogo('jogada_enviada')
+
+    const resultado = await chamarApi<{ status: string; mensagem?: string }>(
+      '/api/partidas/confirmar-jogada',
+      {
+        idDaPartida,
+        numeroDaRodada: rodadaAtual,
+        numeroEscolhido: numeroParaEnvio,
+        tokenDeIdempotencia: tokenRef.current,
+        timeoutNoCliente: true,
+      }
+    )
+
+    setCarregando(false)
+
+    if (resultado.status === 'erro') {
+      setErro(resultado.mensagem ?? 'Erro ao confirmar jogada.')
+      setEstadoJogo('aguardando_jogada')
+      return
+    }
+  }, [numeroSelecionado, estadoJogo, idDaPartida, rodadaAtual, maxNumeros])
 
   // Condições de validação para o botão "Confirmar Jogada"
   const podeJogar =
@@ -395,32 +359,17 @@ export default function TelaDePartida({
         />
       </div>
 
-      {/* Timer: usa o CronometroDaRodada normal ou o timer relâmpago custom */}
+      {/* Timer universal para todos os modos */}
       <div className={`${styles.timerContainer} ${ehRelampago ? styles.timerRelampago : ''}`}>
-        {ehRelampago ? (
-          <div className={styles.timerRelampagoInner}>
-            <div
-              className={`${styles.tempoRelampago} ${tempoRelampagoAlerta ? styles.tempoRelampagoAlerta : ''}`}
-            >
-              {tempoRelampagoRestante}
-            </div>
-            <div className={styles.barraRelampagoContainer}>
-              <div
-                className={`${styles.barraRelampago} ${tempoRelampagoAlerta ? styles.barraRelampagoAlerta : ''}`}
-                style={{ width: `${(tempoRelampagoRestante / tempoLimite) * 100}%` }}
-              />
-            </div>
-            <span className={styles.labelRelampago}>
-              {tempoRelampagoAlerta ? '⚡ Últimos segundos!' : 'Tempo restante'}
-            </span>
-          </div>
-        ) : (
-          <CronometroDaRodada
-            segundos={tempoLimite}
-            emExecucao={estadoJogo === 'aguardando_jogada'}
-            onTempoEsgotado={lidarTempoEsgotado}
-          />
-        )}
+        <CronometroDaRodada
+          segundos={tempoLimite}
+          emExecucao={estadoJogo === 'aguardando_jogada'}
+          onTempoEsgotado={() => {
+            if (estadoJogo === 'aguardando_jogada') {
+              lidarEnviarJogadaComTimeout()
+            }
+          }}
+        />
       </div>
 
       {!conectado && (

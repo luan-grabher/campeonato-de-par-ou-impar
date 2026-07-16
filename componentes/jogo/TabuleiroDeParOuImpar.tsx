@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import IndicadorDeParidade from '@/componentes/ui/IndicadorDeParidade'
 import SeletorDeParidade from '@/componentes/ui/SeletorDeParidade'
@@ -10,6 +10,7 @@ import EfeitoDeVitoria from '@/componentes/ui/EfeitoDeVitoria'
 import Botao from '@/componentes/ui/Botao'
 import HistoricoDeRodadas from './HistoricoDeRodadas'
 import { chamarApi } from '@/hooks/usarApiCliente'
+import CronometroDaRodada from '@/componentes/ui/CronometroDaRodada'
 import styles from './TabuleiroDeParOuImpar.module.css'
 
 type EstadoDoJogo =
@@ -86,6 +87,8 @@ export default function TabuleiroDeParOuImpar({
   const [ultimoResultado, setUltimoResultado] =
     useState<ResultadoDaRodadaConfirmada | null>(null)
 
+  const tokenRef = useRef<string>(crypto.randomUUID())
+
   // Estado de desempate
   const [ehDesempate, setEhDesempate] = useState(false)
   const [jogadorVenceuPrimeiraRodada, setJogadorVenceuPrimeiraRodada] =
@@ -126,30 +129,70 @@ export default function TabuleiroDeParOuImpar({
         )
       }
 
-      const resultado = await chamarApi<ResultadoDaRodadaConfirmada>(
-        '/api/partida-contra-ia/confirmar-jogada',
+      const resposta = await chamarApi(
+        '/api/partidas/confirmar-jogada',
         {
           idDaPartida,
           numeroDaRodada: rodadaAtual,
           numeroEscolhido: numeroSelecionado!,
+          tokenDeIdempotencia: tokenRef.current,
         }
       )
+      tokenRef.current = crypto.randomUUID()
 
-      setUltimoResultado(resultado)
-      setPontuacaoDoJogador(resultado.pontuacaoDoJogador)
-      setPontuacaoDaIa(resultado.pontuacaoDaIa)
+      if (resposta.status === 'erro') {
+        throw new Error(resposta.mensagem ?? 'Erro ao confirmar jogada.')
+      }
 
-      const jogadorVenceu = resultado.resultado.primeiroJogadorVenceu
+      if (resposta.status === 'jogada_registrada') {
+        // No modo IA, isso não deveria acontecer, mas se acontecer, esperar
+        setEstado('ESCOLHENDO')
+        return
+      }
+
+      // Extrair dados do novo formato { status, dados, ... }
+      const { dados } = resposta
+      const primeiroJogadorVenceu = dados.primeiroJogadorVenceu
+      const numeroDaIa = dados.somaDosNumeros - numeroSelecionado!
+      const paridadeDoJogadorAtual: 'par' | 'impar' =
+        rodadaAtual % 2 === 1 ? 'par' : 'impar'
+
+      const resultadoFormatado: ResultadoDaRodadaConfirmada = {
+        numeroDaRodada: dados.numeroDaRodada,
+        numeroDoJogador: numeroSelecionado!,
+        paridadeDoJogador: paridadeDoJogadorAtual,
+        numeroDaIa,
+        paridadeDaIa: paridadeDoJogadorAtual === 'par' ? 'impar' : 'par',
+        resultado: {
+          somaDosNumeros: dados.somaDosNumeros,
+          paridadeResultante: dados.paridadeResultante,
+          primeiroJogadorVenceu,
+        },
+        pontuacaoDoJogador: resposta.status === 'partida_finalizada'
+          ? (resposta.resultado?.pontuacaoPrimeiro ?? 0)
+          : pontuacaoDoJogador + (primeiroJogadorVenceu ? 1 : 0),
+        pontuacaoDaIa: resposta.status === 'partida_finalizada'
+          ? (resposta.resultado?.pontuacaoSegundo ?? 0)
+          : pontuacaoDaIa + (primeiroJogadorVenceu ? 0 : 1),
+        partidaFinalizada: resposta.partidaFinalizada ?? false,
+        vencedor: resposta.status === 'partida_finalizada'
+          ? (primeiroJogadorVenceu ? 'jogador' : 'ia')
+          : null,
+      }
+
+      setUltimoResultado(resultadoFormatado)
+      setPontuacaoDoJogador(resultadoFormatado.pontuacaoDoJogador)
+      setPontuacaoDaIa(resultadoFormatado.pontuacaoDaIa)
 
       setHistorico((prev) => [
         ...prev,
         {
-          numeroDaRodada: resultado.numeroDaRodada,
-          numeroDoJogador: resultado.numeroDoJogador,
-          paridadeDoJogador: resultado.paridadeDoJogador,
-          numeroDaIa: resultado.numeroDaIa,
-          paridadeDaIa: resultado.paridadeDaIa,
-          jogadorVenceu,
+          numeroDaRodada: dados.numeroDaRodada,
+          numeroDoJogador: numeroSelecionado!,
+          paridadeDoJogador: paridadeDoJogadorAtual,
+          numeroDaIa,
+          paridadeDaIa: paridadeDoJogadorAtual === 'par' ? 'impar' : 'par',
+          jogadorVenceu: primeiroJogadorVenceu,
         },
       ])
 
@@ -157,12 +200,12 @@ export default function TabuleiroDeParOuImpar({
 
       // Após a animação, avança ou finaliza
       setTimeout(() => {
-        if (resultado.partidaFinalizada) {
-          setVencedor(resultado.vencedor)
+        if (resultadoFormatado.partidaFinalizada) {
+          setVencedor(resultadoFormatado.vencedor)
           setPartidaFinalizada(true)
           setEstado('FIM_DA_PARTIDA')
         } else {
-          setRodadaAtual(resultado.numeroDaRodada + 1)
+          setRodadaAtual(resultadoFormatado.numeroDaRodada + 1)
           setNumeroSelecionado(null)
           setEstado('ESCOLHENDO')
         }
@@ -179,6 +222,8 @@ export default function TabuleiroDeParOuImpar({
     idDaPartida,
     rodadaAtual,
     numeroSelecionado,
+    pontuacaoDoJogador,
+    pontuacaoDaIa,
     ehDesempate,
     jogadorVenceuPrimeiraRodada,
     paridadeEscolhidaDesempate,
@@ -215,6 +260,19 @@ export default function TabuleiroDeParOuImpar({
         rodadaAtual={rodadaAtual}
         totalRodadas={totalDeRodadas}
       />
+
+      {/* Timer da rodada */}
+      <div className={styles.timerContainer}>
+        <CronometroDaRodada
+          segundos={20}
+          emExecucao={estado === 'ESCOLHENDO'}
+          onTempoEsgotado={() => {
+            if (numeroSelecionado && estado === 'ESCOLHENDO') {
+              handleConfirmar()
+            }
+          }}
+        />
+      </div>
 
       {/* Área de jogo */}
       <div className={styles.areaDeJogo}>
