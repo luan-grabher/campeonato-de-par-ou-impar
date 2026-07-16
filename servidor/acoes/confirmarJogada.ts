@@ -19,6 +19,7 @@ interface EntradaConfirmarJogada {
   numeroDaRodada: number
   numeroEscolhido: number
   tokenDeIdempotencia: string
+  timeoutNoCliente?: boolean
 }
 
 type DadosDaRodadaFinalizada = {

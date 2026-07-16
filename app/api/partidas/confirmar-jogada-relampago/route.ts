@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { confirmarJogadaRelampago } from '@/servidor/acoes/confirmarJogadaRelampago'
+import { confirmarJogada } from '@/servidor/acoes/confirmarJogada'
 
 export async function POST(req: NextRequest) {
   try {
@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const resultado = await confirmarJogadaRelampago({
+    const resultado = await confirmarJogada({
       idDaPartida,
       numeroDaRodada,
       numeroEscolhido,
