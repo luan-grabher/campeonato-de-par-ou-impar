@@ -20,6 +20,10 @@ export default function CronometroDaRodada({
   const [esgotado, setEsgotado] = useState(false)
   const callbackExecutado = useRef(false)
   const intervaloRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const onTempoEsgotadoRef = useRef(onTempoEsgotado)
+
+  // Manter a ref sempre atualizada sem causar re-renders
+  onTempoEsgotadoRef.current = onTempoEsgotado
 
   const parar = useCallback(() => {
     if (intervaloRef.current) {
@@ -44,7 +48,7 @@ export default function CronometroDaRodada({
           parar()
           if (!callbackExecutado.current) {
             callbackExecutado.current = true
-            onTempoEsgotado?.()
+            onTempoEsgotadoRef.current?.()
           }
           return 0
         }
@@ -53,7 +57,7 @@ export default function CronometroDaRodada({
     }, 1000)
 
     return parar
-  }, [segundos, emExecucao, onTempoEsgotado, parar])
+  }, [segundos, emExecucao])  // onTempoEsgotado removido — usamos ref pra evitar reset
 
   const progresso = segundos > 0 ? (restante / segundos) * 100 : 0
   const alerta = restante <= 3 && restante > 0
