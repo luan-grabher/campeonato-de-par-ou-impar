@@ -174,6 +174,7 @@ export interface Partida {
   status: StatusDaPartida;
   total_de_rodadas_previsto: 1 | 3 | 5 | 7;
   rodada_atual: number;
+  paridade_inicial_do_primeiro: Paridade | null;
   vencedor_id: string | null;
   created_at: string;
   updated_at: string;
