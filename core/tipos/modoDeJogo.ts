@@ -73,3 +73,12 @@ export const REGRAS_DOS_MODOS: Record<ModoDeJogo, RegraDoModoDeJogo> = {
     rodadasPorPartida: 1,
   },
 }
+
+export const TEMPO_LIMITE_POR_MODO_MS: Record<ModoDeJogo, number> = {
+  classico: 30_000,
+  dificil: 20_000,
+  relampago: 5_000,
+  invisivel: 30_000,
+  caos: 15_000,
+  sobrevivencia: 20_000,
+}
