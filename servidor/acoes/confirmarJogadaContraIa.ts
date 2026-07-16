@@ -4,6 +4,7 @@ import { buscarPartida, atualizarPartida } from '../partidaContraIaStore'
 import { validarJogada } from '../../core/validacao/validarJogada'
 import { gerarJogadaAleatoria } from '../../core/calculo/jogadaDaIaAleatoria'
 import { calcularResultadoDaRodada } from '../../core/calculo/calcularResultadoDaRodada'
+import { atribuirParidadeDaRodada } from '../../core/calculo/atribuirParidade'
 import { INTERVALO_EXPANDIDO } from '../../core/constantes/intervalosDeNumeros'
 import type { ResultadoDaRodada } from '../../core/tipos/rodada'
 
@@ -11,45 +12,42 @@ export interface ConfirmarJogadaParams {
   idDaPartida: string
   numeroDaRodada: number
   numeroEscolhido: number
-  paridadeEscolhida: 'par' | 'impar'
 }
 
 export interface ResultadoDaRodadaConfirmada {
   numeroDaRodada: number
   numeroDoJogador: number
-  paridadeDoJogador: 'par' | 'impar'
-  numeroDaIa: number
-  paridadeDaIa: 'par' | 'impar'
-  resultado: ResultadoDaRodada
+  paridadeDoJogador: 'par' | 'impar' | null
+  numeroDaIa: number | null
+  paridadeDaIa: 'par' | 'impar' | null
+  resultado: ResultadoDaRodada | null
   pontuacaoDoJogador: number
   pontuacaoDaIa: number
   partidaFinalizada: boolean
   vencedor: 'jogador' | 'ia' | null
+  desempate?: true
 }
 
 export async function confirmarJogadaContraIa(
   params: ConfirmarJogadaParams
 ): Promise<ResultadoDaRodadaConfirmada> {
-  const { idDaPartida, numeroDaRodada, numeroEscolhido, paridadeEscolhida } =
-    params
+  const { idDaPartida, numeroDaRodada, numeroEscolhido } = params
 
-  // 1. Buscar partida
   const partida = buscarPartida(idDaPartida)
   if (!partida) {
-    throw new Error('Partida não encontrada ou expirada.')
+    throw new Error('Partida n\u00e3o encontrada ou expirada.')
   }
 
   if (partida.finalizada) {
-    throw new Error('Partida já foi finalizada.')
+    throw new Error('Partida j\u00e1 foi finalizada.')
   }
 
   if (partida.rodadaAtual !== numeroDaRodada) {
     throw new Error(
-      `Rodada inválida. Esperada rodada ${partida.rodadaAtual}, recebida ${numeroDaRodada}.`
+      'Rodada inv\u00e1lida. Esperada rodada ' + partida.rodadaAtual + ', recebida ' + numeroDaRodada + '.'
     )
   }
 
-  // 2. Validar jogada do jogador
   const validacao = validarJogada({
     numeroEscolhido,
     intervalo: INTERVALO_EXPANDIDO,
@@ -57,34 +55,76 @@ export async function confirmarJogadaContraIa(
   })
 
   if (!validacao.valida) {
-    throw new Error(validacao.erro ?? 'Jogada inválida.')
+    throw new Error(validacao.erro ?? 'Jogada inv\u00e1lida.')
   }
 
-  if (!['par', 'impar'].includes(paridadeEscolhida)) {
-    throw new Error('Paridade inválida.')
-  }
-
-  // 3. Encontrar rodada atual
   const rodada = partida.rodadas[numeroDaRodada - 1]
   if (!rodada) {
-    throw new Error('Rodada não encontrada.')
+    throw new Error('Rodada n\u00e3o encontrada.')
   }
 
   if (rodada.confirmada) {
-    throw new Error('Rodada já foi confirmada.')
+    throw new Error('Rodada j\u00e1 foi confirmada.')
   }
 
-  // 4. Gerar jogada da IA (Aleatória)
+  const atribuicao = atribuirParidadeDaRodada(
+    numeroDaRodada,
+    partida.paridadeInicialDoPrimeiro,
+    partida.totalDeRodadas
+  )
+
+  let paridadeDoJogador: 'par' | 'impar'
+  let paridadeDaIa: 'par' | 'impar'
+
+  if ('desempate' in atribuicao) {
+    const primeiraRodada = partida.rodadas[0]
+    if (!primeiraRodada?.resultado) {
+      throw new Error(
+        'Resultado da primeira rodada n\u00e3o encontrado para desempate.'
+      )
+    }
+
+    if (primeiraRodada.resultado.primeiroJogadorVenceu) {
+      const rodadasAtualizadas = [...partida.rodadas]
+      rodadasAtualizadas[numeroDaRodada - 1] = {
+        ...rodada,
+        numeroDoJogador: numeroEscolhido,
+      }
+
+      atualizarPartida(idDaPartida, {
+        rodadas: rodadasAtualizadas,
+      })
+
+      return {
+        numeroDaRodada,
+        numeroDoJogador: numeroEscolhido,
+        paridadeDoJogador: null,
+        numeroDaIa: null,
+        paridadeDaIa: null,
+        resultado: null,
+        pontuacaoDoJogador: partida.pontuacaoDoJogador,
+        pontuacaoDaIa: partida.pontuacaoDaIa,
+        partidaFinalizada: false,
+        vencedor: null,
+        desempate: true,
+      }
+    }
+
+    paridadeDaIa = Math.random() < 0.5 ? 'par' : 'impar'
+    paridadeDoJogador = paridadeDaIa === 'par' ? 'impar' : 'par'
+  } else {
+    paridadeDoJogador = atribuicao.paridadeDoPrimeiro
+    paridadeDaIa = atribuicao.paridadeDoSegundo
+  }
+
   const jogadaDaIa = gerarJogadaAleatoria(INTERVALO_EXPANDIDO)
 
-  // 5. Calcular resultado
   const resultado = calcularResultadoDaRodada(
     numeroEscolhido,
     jogadaDaIa.numero,
-    paridadeEscolhida
+    paridadeDoJogador
   )
 
-  // 6. Atualizar placar
   const novaPontuacaoJogador = resultado.primeiroJogadorVenceu
     ? partida.pontuacaoDoJogador + 1
     : partida.pontuacaoDoJogador
@@ -104,14 +144,13 @@ export async function confirmarJogadaContraIa(
     }
   }
 
-  // 7. Salvar estado atualizado
   const rodadasAtualizadas = [...partida.rodadas]
   rodadasAtualizadas[numeroDaRodada - 1] = {
     ...rodada,
     numeroDoJogador: numeroEscolhido,
-    paridadeDoJogador: paridadeEscolhida,
+    paridadeDoJogador,
     numeroDaIa: jogadaDaIa.numero,
-    paridadeDaIa: jogadaDaIa.paridade,
+    paridadeDaIa,
     resultado,
     confirmada: true,
   }
@@ -125,13 +164,12 @@ export async function confirmarJogadaContraIa(
     pontuacaoDaIa: novaPontuacaoIa,
   })
 
-  // 8. Retornar resultado da rodada
   return {
     numeroDaRodada,
     numeroDoJogador: numeroEscolhido,
-    paridadeDoJogador: paridadeEscolhida,
+    paridadeDoJogador,
     numeroDaIa: jogadaDaIa.numero,
-    paridadeDaIa: jogadaDaIa.paridade,
+    paridadeDaIa,
     resultado,
     pontuacaoDoJogador: novaPontuacaoJogador,
     pontuacaoDaIa: novaPontuacaoIa,

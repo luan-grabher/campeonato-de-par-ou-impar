@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import IndicadorDeParidade from '@/componentes/ui/IndicadorDeParidade'
 import SeletorDeParidade from '@/componentes/ui/SeletorDeParidade'
 import PlacarDaPartida from '@/componentes/ui/PlacarDaPartida'
 import AnimacaoDeRevelacao from '@/componentes/ui/AnimacaoDeRevelacao'
@@ -71,9 +72,6 @@ export default function TabuleiroDeParOuImpar({
   const [numeroSelecionado, setNumeroSelecionado] = useState<number | null>(
     null
   )
-  const [paridadeSelecionada, setParidadeSelecionada] = useState<
-    'par' | 'impar' | null
-  >(null)
   const [erro, setErro] = useState<string | null>(null)
 
   // Estado da partida
@@ -88,8 +86,23 @@ export default function TabuleiroDeParOuImpar({
   const [ultimoResultado, setUltimoResultado] =
     useState<ResultadoDaRodadaConfirmada | null>(null)
 
-  const podeConfirmar =
-    numeroSelecionado !== null && paridadeSelecionada !== null
+  // Estado de desempate
+  const [ehDesempate, setEhDesempate] = useState(false)
+  const [jogadorVenceuPrimeiraRodada, setJogadorVenceuPrimeiraRodada] =
+    useState(false)
+  const [paridadeEscolhidaDesempate, setParidadeEscolhidaDesempate] = useState<
+    'par' | 'impar' | null
+  >(null)
+
+  // Paridade automática — alterna a cada rodada
+  const paridadeDoJogador: 'par' | 'impar' =
+    rodadaAtual % 2 === 1 ? 'par' : 'impar'
+
+  const podeConfirmar = ehDesempate
+    ? jogadorVenceuPrimeiraRodada
+      ? numeroSelecionado !== null && paridadeEscolhidaDesempate !== null
+      : false
+    : numeroSelecionado !== null
 
   const handleConfirmar = useCallback(async () => {
     if (!podeConfirmar || estado !== 'ESCOLHENDO') return
@@ -98,13 +111,27 @@ export default function TabuleiroDeParOuImpar({
     setEstado('AGUARDANDO_RESULTADO')
 
     try {
+      // Se for desempate e jogador venceu R1, definir paridade do desempate primeiro
+      if (
+        ehDesempate &&
+        jogadorVenceuPrimeiraRodada &&
+        paridadeEscolhidaDesempate
+      ) {
+        await chamarApi(
+          '/api/partida-contra-ia/definir-paridade-desempate',
+          {
+            idDaPartida,
+            paridadeEscolhida: paridadeEscolhidaDesempate,
+          }
+        )
+      }
+
       const resultado = await chamarApi<ResultadoDaRodadaConfirmada>(
         '/api/partida-contra-ia/confirmar-jogada',
         {
           idDaPartida,
           numeroDaRodada: rodadaAtual,
           numeroEscolhido: numeroSelecionado!,
-          paridadeEscolhida: paridadeSelecionada!,
         }
       )
 
@@ -137,7 +164,6 @@ export default function TabuleiroDeParOuImpar({
         } else {
           setRodadaAtual(resultado.numeroDaRodada + 1)
           setNumeroSelecionado(null)
-          setParidadeSelecionada(null)
           setEstado('ESCOLHENDO')
         }
       }, INTERVALO_ANIMACAO_MS)
@@ -153,7 +179,9 @@ export default function TabuleiroDeParOuImpar({
     idDaPartida,
     rodadaAtual,
     numeroSelecionado,
-    paridadeSelecionada,
+    ehDesempate,
+    jogadorVenceuPrimeiraRodada,
+    paridadeEscolhidaDesempate,
   ])
 
   async function handleJogarNovamente() {
@@ -219,13 +247,34 @@ export default function TabuleiroDeParOuImpar({
               </div>
             </div>
 
-            <div className={styles.secao}>
-              <h3 className={styles.tituloSecao}>Escolha a paridade</h3>
-              <SeletorDeParidade
-                valorSelecionado={paridadeSelecionada}
-                onChange={setParidadeSelecionada}
-              />
-            </div>
+            {!ehDesempate ? (
+              <div className={styles.secao}>
+                <h3 className={styles.tituloSecao}>
+                  Sua paridade nesta rodada
+                </h3>
+                <IndicadorDeParidade
+                  paridade={paridadeDoJogador}
+                  tamanho="grande"
+                />
+              </div>
+            ) : jogadorVenceuPrimeiraRodada ? (
+              <div className={styles.secao}>
+                <p className={styles.dicaDesempate}>
+                  Você venceu a primeira rodada! Escolha sua paridade para o
+                  desempate:
+                </p>
+                <SeletorDeParidade
+                  valorSelecionado={paridadeEscolhidaDesempate}
+                  onChange={setParidadeEscolhidaDesempate}
+                />
+              </div>
+            ) : (
+              <div className={styles.secao}>
+                <p className={styles.dicaDesempate}>
+                  Aguardando IA escolher a paridade do desempate...
+                </p>
+              </div>
+            )}
 
             {erro && (
               <div className={styles.erro} role="alert">
@@ -248,9 +297,7 @@ export default function TabuleiroDeParOuImpar({
         {estado === 'AGUARDANDO_RESULTADO' && (
           <div className={styles.aguardando}>
             <div className={styles.spinner} aria-hidden="true" />
-            <p className={styles.textoAguardando}>
-              IA está jogando...
-            </p>
+            <p className={styles.textoAguardando}>IA está jogando...</p>
           </div>
         )}
 
@@ -286,7 +333,10 @@ export default function TabuleiroDeParOuImpar({
                       : styles.impar
                   }
                 >
-                  ({ultimoResultado.paridadeDaIa === 'par' ? 'PAR' : 'ÍMPAR'})
+                  ({ultimoResultado.paridadeDaIa === 'par'
+                    ? 'PAR'
+                    : 'ÍMPAR'}
+                  )
                 </span>
               </p>
             </div>

@@ -1,8 +1,8 @@
-import { sortearParidadeInicial } from '@/core/calculo/atribuirParidade'
 import { NextRequest, NextResponse } from 'next/server'
 import { randomUUID } from 'crypto'
 import { criarClienteServidor } from '@/servidor/integracoes/supabase/criarClienteServidor'
 import { criarClienteServidorAdmin } from '@/servidor/integracoes/supabase/criarClienteServidorAdmin'
+import { sortearParidadeInicial } from '@/core/calculo/atribuirParidade'
 
 export async function POST(req: NextRequest) {
   try {

@@ -10,13 +10,14 @@ import { INTERVALO_TRADICIONAL, gerarIntervaloDoCaos } from '@/core/constantes/i
 import { K_FACTOR_PADRAO } from '@/core/constantes/pontuacao'
 import { verificarConquistas, type ConquistaNova } from '@/servidor/acoes/verificarConquistas'
 import { salvarReplay } from '@/servidor/acoes/salvarReplay'
+import { atribuirParidadeDaRodada, sortearParidadeInicial } from '@/core/calculo/atribuirParidade'
+import type { Paridade } from '@/core/calculo/atribuirParidade'
 import type { DadosDoReplay, RodadaDoReplay, JogadorDoReplay } from '@/core/tipos/replay'
 
 interface EntradaConfirmarJogada {
   idDaPartida: string
   numeroDaRodada: number
   numeroEscolhido: number
-  paridadeEscolhida: 'par' | 'impar'
   tokenDeIdempotencia: string
 }
 
@@ -57,7 +58,7 @@ export type ResultadoConfirmarJogada =
 export async function confirmarJogada(
   entrada: EntradaConfirmarJogada
 ): Promise<ResultadoConfirmarJogada> {
-  const { idDaPartida, numeroDaRodada, numeroEscolhido, paridadeEscolhida, tokenDeIdempotencia } =
+  const { idDaPartida, numeroDaRodada, numeroEscolhido, tokenDeIdempotencia } =
     entrada
 
   try {
@@ -147,13 +148,17 @@ export async function confirmarJogada(
     const camposAtualizar: Record<string, unknown> = {}
 
     if (ehPrimeiro) {
+      if (!rodada.paridade_escolhida_pelo_primeiro) {
+        return { status: 'erro', mensagem: 'Paridade do primeiro jogador não definida.' }
+      }
       camposAtualizar.numero_do_primeiro_jogador = numeroEscolhido
-      camposAtualizar.paridade_escolhida_pelo_primeiro = paridadeEscolhida
       camposAtualizar.token_de_idempotencia_do_primeiro = tokenDeIdempotencia
       camposAtualizar.jogada_do_primeiro_confirmada = true
     } else {
+      if (!rodada.paridade_escolhida_pelo_segundo) {
+        return { status: 'erro', mensagem: 'Paridade do segundo jogador não definida.' }
+      }
       camposAtualizar.numero_do_segundo_jogador = numeroEscolhido
-      camposAtualizar.paridade_escolhida_pelo_segundo = paridadeEscolhida
       camposAtualizar.token_de_idempotencia_do_segundo = tokenDeIdempotencia
       camposAtualizar.jogada_do_segundo_confirmada = true
     }
@@ -207,7 +212,11 @@ export async function confirmarJogada(
     // === AMBOS JOGARAM — CALCULAR RESULTADO ===
     const numeroPrimeiro = rodadaAtualizada.numero_do_primeiro_jogador as number
     const numeroSegundo = rodadaAtualizada.numero_do_segundo_jogador as number
-    const paridadePrimeiro = rodadaAtualizada.paridade_escolhida_pelo_primeiro as 'par' | 'impar'
+    const paridadeBruta = rodadaAtualizada.paridade_escolhida_pelo_primeiro
+    const paridadePrimeiro: Paridade =
+      paridadeBruta === 'par' || paridadeBruta === 'impar'
+        ? paridadeBruta
+        : 'par'
 
     let resultado: ReturnType<typeof calcularResultadoDaRodada>
     let paridadeSorteada: 'par' | 'impar' | null = null
@@ -462,11 +471,51 @@ export async function confirmarJogada(
       .update({ rodada_atual: proximaRodada })
       .eq('id', idDaPartida)
 
-    // Criar próxima rodada
-    await supabaseAdmin.from('rodadas').insert({
-      id_da_partida: idDaPartida,
-      numero_da_rodada: proximaRodada,
-    })
+    // Criar próxima rodada com paridade automática
+    const paridadeInicialValue = partida.paridade_inicial_do_primeiro
+    const paridadeInicial: Paridade =
+      paridadeInicialValue === 'par' || paridadeInicialValue === 'impar'
+        ? paridadeInicialValue
+        : sortearParidadeInicial()
+    const totalRodadas = partida.total_de_rodadas_previsto as number
+    const atribuicao = atribuirParidadeDaRodada(
+      proximaRodada,
+      paridadeInicial,
+      totalRodadas
+    )
+
+    if ('desempate' in atribuicao) {
+      // Desempate: criar rodada sem paridades, depois vencedor da R1 escolhe
+      await supabaseAdmin.from('rodadas').insert({
+        id_da_partida: idDaPartida,
+        numero_da_rodada: proximaRodada,
+      })
+
+      // Descobrir quem venceu a R1
+      const { data: rodada1 } = await supabaseAdmin
+        .from('rodadas')
+        .select('vencedor_id')
+        .eq('id_da_partida', idDaPartida)
+        .eq('numero_da_rodada', 1)
+        .single()
+
+      // Broadcast pedindo escolha de paridade
+      await channel.send({
+        type: 'broadcast',
+        event: 'escolher_paridade_do_desempate',
+        payload: {
+          idDoVencedorDaPrimeiraRodada: rodada1?.vencedor_id,
+          numeroDaRodada: proximaRodada,
+        },
+      })
+    } else {
+      await supabaseAdmin.from('rodadas').insert({
+        id_da_partida: idDaPartida,
+        numero_da_rodada: proximaRodada,
+        paridade_escolhida_pelo_primeiro: atribuicao.paridadeDoPrimeiro,
+        paridade_escolhida_pelo_segundo: atribuicao.paridadeDoSegundo,
+      })
+    }
 
     // Broadcast resultado da rodada
     await channel.send({

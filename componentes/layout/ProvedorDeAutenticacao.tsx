@@ -8,6 +8,7 @@ import {
   useMemo,
   type ReactNode,
 } from 'react'
+import { usePathname } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
 
 /* ------------------------------------------------------------------ */
@@ -24,8 +25,6 @@ interface Jogador {
 interface ContextoDeAutenticacao {
   jogador: Jogador | null
   carregando: boolean
-  entrar: (email: string, senha: string) => Promise<void>
-  cadastrar: (email: string, senha: string, apelido: string) => Promise<void>
   sair: () => Promise<void>
 }
 
@@ -36,8 +35,6 @@ interface ContextoDeAutenticacao {
 const AutenticacaoContext = createContext<ContextoDeAutenticacao>({
   jogador: null,
   carregando: true,
-  entrar: async () => {},
-  cadastrar: async () => {},
   sair: async () => {},
 })
 
@@ -58,6 +55,7 @@ function criarJogadorDaSessao(
     id: sessao.user.id,
     apelido:
       sessao.user.user_metadata?.apelido ??
+      sessao.user.user_metadata?.nome_de_usuario ??
       sessao.user.email?.split('@')[0] ??
       'Jogador',
     avatar_url: sessao.user.user_metadata?.avatar_url,
@@ -72,6 +70,7 @@ export default function ProvedorDeAutenticacao({
 }) {
   const [jogador, setJogador] = useState<Jogador | null>(null)
   const [carregando, setCarregando] = useState(true)
+  const pathname = usePathname()
 
   const supabase = useMemo(
     () =>
@@ -98,35 +97,19 @@ export default function ProvedorDeAutenticacao({
       setCarregando(false)
     })
 
-    /* Verifica sessão existente */
+    return () => subscription.unsubscribe()
+  }, [supabase])
+
+  /* Re-checa sessão ao navegar entre páginas */
+  useEffect(() => {
+    if (!supabase) return
     supabase.auth.getSession().then(({ data: { session: sessao } }) => {
       setJogador(criarJogadorDaSessao(sessao))
       setCarregando(false)
     })
-
-    return () => subscription.unsubscribe()
-  }, [supabase])
+  }, [supabase, pathname])
 
   /* Actions */
-  const entrar = async (email: string, senha: string) => {
-    if (!supabase) return
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password: senha,
-    })
-    if (error) throw error
-  }
-
-  const cadastrar = async (email: string, senha: string, apelido: string) => {
-    if (!supabase) return
-    const { error } = await supabase.auth.signUp({
-      email,
-      password: senha,
-      options: { data: { apelido } },
-    })
-    if (error) throw error
-  }
-
   const sair = async () => {
     if (!supabase) return
     const { error } = await supabase.auth.signOut()
@@ -137,7 +120,7 @@ export default function ProvedorDeAutenticacao({
 
   return (
     <AutenticacaoContext.Provider
-      value={{ jogador, carregando, entrar, cadastrar, sair }}
+      value={{ jogador, carregando, sair }}
     >
       {children}
     </AutenticacaoContext.Provider>

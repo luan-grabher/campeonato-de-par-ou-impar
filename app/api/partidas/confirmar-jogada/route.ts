@@ -4,7 +4,7 @@ import { confirmarJogada } from '@/servidor/acoes/confirmarJogada'
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { idDaPartida, numeroDaRodada, numeroEscolhido, paridadeEscolhida, tokenDeIdempotencia } =
+    const { idDaPartida, numeroDaRodada, numeroEscolhido, tokenDeIdempotencia } =
       body ?? {}
 
     if (!idDaPartida || typeof numeroDaRodada !== 'number' || typeof numeroEscolhido !== 'number') {
@@ -18,7 +18,6 @@ export async function POST(req: NextRequest) {
       idDaPartida,
       numeroDaRodada,
       numeroEscolhido,
-      paridadeEscolhida: paridadeEscolhida ?? 'par',
       tokenDeIdempotencia: tokenDeIdempotencia ?? crypto.randomUUID(),
     })
 

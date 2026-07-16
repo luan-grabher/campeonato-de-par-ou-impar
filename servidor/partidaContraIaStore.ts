@@ -16,6 +16,7 @@ export interface PartidaContraIaState {
   nomeDoJogador: string
   rodadaAtual: number
   totalDeRodadas: number
+  paridadeInicialDoPrimeiro: 'par' | 'impar'
   rodadas: RodadaContraIa[]
   finalizada: boolean
   vencedor: 'jogador' | 'ia' | null
@@ -59,7 +60,8 @@ export function atualizarPartida(
 export function criarPartida(
   id: string,
   nomeDoJogador: string,
-  totalDeRodadas: number
+  totalDeRodadas: number,
+  paridadeInicialDoPrimeiro: 'par' | 'impar'
 ): PartidaContraIaState {
   limparPartidasVelhas()
 
@@ -82,6 +84,7 @@ export function criarPartida(
     nomeDoJogador: nomeDoJogador.trim(),
     rodadaAtual: 1,
     totalDeRodadas,
+    paridadeInicialDoPrimeiro,
     rodadas,
     finalizada: false,
     vencedor: null,

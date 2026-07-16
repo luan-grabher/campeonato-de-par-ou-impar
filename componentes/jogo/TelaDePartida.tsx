@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import PlacarDaPartida from '@/componentes/ui/PlacarDaPartida'
 import SeletorDeNumero from '@/componentes/ui/SeletorDeNumero'
 import SeletorDeParidade from '@/componentes/ui/SeletorDeParidade'
+import IndicadorDeParidade from '@/componentes/ui/IndicadorDeParidade'
 import CronometroDaRodada from '@/componentes/ui/CronometroDaRodada'
 import AnimacaoDeRevelacao from '@/componentes/ui/AnimacaoDeRevelacao'
 import Botao from '@/componentes/ui/Botao'
@@ -99,8 +100,12 @@ export default function TelaDePartida({
   const ehCaos = modo === 'caos'
 
   const [numeroSelecionado, setNumeroSelecionado] = useState<number | null>(null)
-  const [paridadeSelecionada, setParidadeSelecionada] = useState<'par' | 'impar' | null>(null)
   const [estadoJogo, setEstadoJogo] = useState<EstadoDoJogo>('aguardando_jogada')
+  const [paridadeDoJogador, setParidadeDoJogador] = useState<'par' | 'impar' | null>(null)
+  const [paridadeDoOponente, setParidadeDoOponente] = useState<'par' | 'impar' | null>(null)
+  const [ehDesempate, setEhDesempate] = useState(false)
+  const [vencedorDaPrimeiraRodada, setVencedorDaPrimeiraRodada] = useState<string | null>(null)
+  const [paridadeEscolhidaDesempate, setParidadeEscolhidaDesempate] = useState<'par' | 'impar' | null>(null)
   const [rodadaAtual, setRodadaAtual] = useState<number>(partida.rodadaAtual || 1)
   const [pontuacao, setPontuacao] = useState({ jogador: 0, oponente: 0 })
   const [ultimoResultado, setUltimoResultado] = useState<{
@@ -128,7 +133,7 @@ export default function TelaDePartida({
 
     // No timeout, enviar jogada aleatória
     const numeroAleatorio = numeroSelecionado ?? Math.floor(Math.random() * 2) + 1
-    const paridadeAleatoria = paridadeSelecionada ?? (Math.random() < 0.5 ? 'par' : 'impar')
+    const paridadeAleatoria = paridadeDoJogador ?? (Math.random() < 0.5 ? 'par' : 'impar')
 
     const resultado = await chamarApi<{ status: string; mensagem?: string }>(
       '/api/partidas/confirmar-jogada-relampago',
@@ -149,7 +154,7 @@ export default function TelaDePartida({
       setEstadoJogo('aguardando_jogada')
       return
     }
-  }, [estadoJogo, numeroSelecionado, paridadeSelecionada, idDaPartida, rodadaAtual])
+  }, [estadoJogo, numeroSelecionado, paridadeDoJogador, idDaPartida, rodadaAtual])
 
   const {
     restante: tempoRelampagoRestante,
@@ -184,6 +189,8 @@ export default function TelaDePartida({
           proximaRodada: number
           pontuacaoPrimeiro: number
           pontuacaoSegundo: number
+          paridadePrimeiro?: 'par' | 'impar'
+          paridadeSegundo?: 'par' | 'impar'
         }
         setUltimoResultado({
           numero: 0,
@@ -200,7 +207,18 @@ export default function TelaDePartida({
         setEstadoJogo('aguardando_jogada')
         tokenRef.current = crypto.randomUUID()
         setNumeroSelecionado(null)
-        setParidadeSelecionada(null)
+        // Extrair paridades do payload do evento
+        setParidadeDoJogador(ehPrimeiro ? (dados.paridadePrimeiro ?? null) : (dados.paridadeSegundo ?? null))
+        setParidadeDoOponente(ehPrimeiro ? (dados.paridadeSegundo ?? null) : (dados.paridadePrimeiro ?? null))
+        // Guardar vencedor da R1 para saber se jogador pode escolher no desempate
+        if (dados.numeroDaRodada === 1) {
+          setVencedorDaPrimeiraRodada(dados.vencedorId)
+        }
+        // Detectar desempate
+        setEhDesempate(
+          dados.proximaRodada === partida.totalDeRodadasPrevisto &&
+          dados.pontuacaoPrimeiro === dados.pontuacaoSegundo
+        )
         break
       }
       case 'fim_da_partida': {
@@ -211,6 +229,19 @@ export default function TelaDePartida({
           oponente: ehPrimeiro ? dados.pontuacaoSegundo : dados.pontuacaoPrimeiro,
         })
         setEstadoJogo('partida_finalizada')
+        break
+      }
+      case 'escolher_paridade_do_desempate': {
+        setEhDesempate(true)
+        break
+      }
+      case 'paridade_do_desempate_definida': {
+        const dados = ultimoEvento.dados as {
+          paridadePrimeiro: 'par' | 'impar'
+          paridadeSegundo: 'par' | 'impar'
+        }
+        setParidadeDoJogador(ehPrimeiro ? dados.paridadePrimeiro : dados.paridadeSegundo)
+        setParidadeDoOponente(ehPrimeiro ? dados.paridadeSegundo : dados.paridadePrimeiro)
         break
       }
     }
@@ -234,8 +265,31 @@ export default function TelaDePartida({
 
   const lidarEnviarJogada = useCallback(async () => {
     if (!numeroSelecionado) return
-    // Modo invisível não requer paridade
-    if (!ehInvisivel && !paridadeSelecionada) return
+
+    // Se for desempate e jogador venceu R1, primeiro definir paridade do desempate
+    if (ehDesempate && vencedorDaPrimeiraRodada === jogador.id) {
+      if (!paridadeEscolhidaDesempate) return
+      setCarregando(true)
+      setErro(null)
+      setEstadoJogo('jogada_enviada')
+
+      const resultadoParidade = await chamarApi<{ status: string; mensagem?: string }>(
+        '/api/partidas/definir-paridade-desempate',
+        {
+          idDaPartida,
+          paridadeEscolhida: paridadeEscolhidaDesempate,
+          tokenDeIdempotencia: tokenRef.current,
+        }
+      )
+
+      setCarregando(false)
+
+      if (resultadoParidade.status === 'erro') {
+        setErro(resultadoParidade.mensagem ?? 'Erro ao definir paridade do desempate.')
+        setEstadoJogo('aguardando_jogada')
+        return
+      }
+    }
 
     setCarregando(true)
     setErro(null)
@@ -248,7 +302,6 @@ export default function TelaDePartida({
           idDaPartida,
           numeroDaRodada: rodadaAtual,
           numeroEscolhido: numeroSelecionado,
-          paridadeEscolhida: paridadeSelecionada ?? (Math.random() < 0.5 ? 'par' : 'impar'),
           tokenDeIdempotencia: tokenRef.current,
         }
       )
@@ -267,7 +320,6 @@ export default function TelaDePartida({
           idDaPartida,
           numeroDaRodada: rodadaAtual,
           numeroEscolhido: numeroSelecionado,
-          paridadeEscolhida: paridadeSelecionada ?? 'par',
           tokenDeIdempotencia: tokenRef.current,
         }
       )
@@ -280,7 +332,7 @@ export default function TelaDePartida({
         return
       }
     }
-  }, [numeroSelecionado, paridadeSelecionada, idDaPartida, rodadaAtual, ehRelampago, ehInvisivel])
+  }, [numeroSelecionado, paridadeEscolhidaDesempate, ehDesempate, vencedorDaPrimeiraRodada, jogador.id, idDaPartida, rodadaAtual, ehRelampago])
 
   const lidarTempoEsgotado = useCallback(() => {
     setErro('Tempo esgotado!')
@@ -290,7 +342,9 @@ export default function TelaDePartida({
   const podeJogar =
     estadoJogo === 'aguardando_jogada' &&
     numeroSelecionado !== null &&
-    (ehInvisivel || paridadeSelecionada !== null) &&
+    (ehDesempate && vencedorDaPrimeiraRodada === jogador.id
+      ? paridadeEscolhidaDesempate !== null
+      : true) &&
     !carregando
 
   const ehMinhaVez = estadoJogo === 'aguardando_jogada'
@@ -436,16 +490,24 @@ export default function TelaDePartida({
                   </p>
                 </div>
               </div>
-            ) : (
+            ) : !ehDesempate && paridadeDoJogador ? (
               <div className={styles.secao}>
-                <h3 className={styles.label}>Escolha Par ou Ímpar</h3>
+                <h3 className={styles.label}>Sua paridade nesta rodada</h3>
+                <IndicadorDeParidade paridade={paridadeDoJogador} tamanho="grande" />
+              </div>
+            ) : ehDesempate && vencedorDaPrimeiraRodada === jogador.id ? (
+              <div className={styles.secao}>
+                <p className={styles.dicaDesempate}>Você venceu a primeira rodada! Escolha sua paridade para o desempate:</p>
                 <SeletorDeParidade
-                  valorSelecionado={paridadeSelecionada}
-                  onChange={setParidadeSelecionada}
-                  desabilitado={!ehMinhaVez}
+                  valorSelecionado={paridadeEscolhidaDesempate}
+                  onChange={setParidadeEscolhidaDesempate}
                 />
               </div>
-            )}
+            ) : ehDesempate ? (
+              <div className={styles.secao}>
+                <p className={styles.dicaDesempate}>Aguardando {oponente.nome} escolher a paridade do desempate...</p>
+              </div>
+            ) : null}
 
             <div className={styles.acao}>
               <Botao
