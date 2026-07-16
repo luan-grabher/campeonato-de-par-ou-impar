@@ -68,6 +68,16 @@ const MAX_NUMEROS_POR_MODO: Record<string, number> = {
   sobrevivencia: 5,
 }
 
+/** Mapa de valor mínimo do intervalo por modo */
+const MIN_NUMEROS_POR_MODO: Record<string, number> = {
+  classico: 1,
+  dificil: 0,
+  relampago: 1,
+  invisivel: 1,
+  caos: 0,
+  sobrevivencia: 1,
+}
+
 /**
  * Gera um nome amigável para o modo de jogo.
  */
@@ -95,6 +105,7 @@ export default function TelaDePartida({
   const modo = partida.modo
   const tempoLimite = TEMPO_LIMITE_POR_MODO[modo] ?? 30
   const maxNumeros = MAX_NUMEROS_POR_MODO[modo] ?? 2
+  const minNumeros = MIN_NUMEROS_POR_MODO[modo] ?? 1
   const ehRelampago = modo === 'relampago'
   const ehInvisivel = modo === 'invisivel'
   const ehCaos = modo === 'caos'
@@ -276,7 +287,7 @@ export default function TelaDePartida({
     if (estadoJogo !== 'aguardando_jogada') return
 
     // Se não tiver número selecionado, escolher aleatório dentro do intervalo do modo
-    const numeroParaEnvio = numeroSelecionado ?? Math.floor(Math.random() * maxNumeros) + (maxNumeros <= 2 ? 1 : 0)
+    const numeroParaEnvio = numeroSelecionado ?? Math.floor(Math.random() * (maxNumeros - minNumeros + 1)) + minNumeros
 
     setCarregando(true)
     setErro(null)
@@ -300,7 +311,7 @@ export default function TelaDePartida({
       setEstadoJogo('aguardando_jogada')
       return
     }
-  }, [numeroSelecionado, estadoJogo, idDaPartida, rodadaAtual, maxNumeros])
+  }, [numeroSelecionado, estadoJogo, idDaPartida, rodadaAtual, maxNumeros, minNumeros])
 
   // Condições de validação para o botão "Confirmar Jogada"
   const podeJogar =

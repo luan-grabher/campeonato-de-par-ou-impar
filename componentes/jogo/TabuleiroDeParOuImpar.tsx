@@ -107,6 +107,112 @@ export default function TabuleiroDeParOuImpar({
       : false
     : numeroSelecionado !== null
 
+  // Callback para quando o timer esgotar — ENVIA a jogada mesmo sem número selecionado
+  const lidarEnviarJogadaComTimeout = useCallback(async () => {
+    if (estado !== 'ESCOLHENDO') return
+
+    const numeroParaEnvio = numeroSelecionado ?? Math.floor(Math.random() * (maximo - minimo + 1)) + minimo
+
+    setErro(null)
+    setEstado('AGUARDANDO_RESULTADO')
+
+    try {
+      const resposta = await chamarApi(
+        '/api/partidas/confirmar-jogada',
+        {
+          idDaPartida,
+          numeroDaRodada: rodadaAtual,
+          numeroEscolhido: numeroParaEnvio,
+          tokenDeIdempotencia: tokenRef.current,
+          timeoutNoCliente: true,
+        }
+      )
+      tokenRef.current = crypto.randomUUID()
+
+      if (resposta.status === 'erro') {
+        throw new Error(resposta.mensagem ?? 'Erro ao confirmar jogada.')
+      }
+
+      if (resposta.status === 'jogada_registrada') {
+        setEstado('ESCOLHENDO')
+        return
+      }
+
+      // === Extrair dados do resultado ===
+      const { dados } = resposta
+      const primeiroJogadorVenceu = dados.primeiroJogadorVenceu
+      const numeroDaIa = dados.somaDosNumeros - numeroParaEnvio
+      const paridadeDoJogadorAtual: 'par' | 'impar' =
+        rodadaAtual % 2 === 1 ? 'par' : 'impar'
+
+      const resultadoFormatado: ResultadoDaRodadaConfirmada = {
+        numeroDaRodada: dados.numeroDaRodada,
+        numeroDoJogador: numeroParaEnvio,
+        paridadeDoJogador: paridadeDoJogadorAtual,
+        numeroDaIa,
+        paridadeDaIa: paridadeDoJogadorAtual === 'par' ? 'impar' : 'par',
+        resultado: {
+          somaDosNumeros: dados.somaDosNumeros,
+          paridadeResultante: dados.paridadeResultante,
+          primeiroJogadorVenceu,
+        },
+        pontuacaoDoJogador: resposta.status === 'partida_finalizada'
+          ? (resposta.resultado?.pontuacaoPrimeiro ?? 0)
+          : pontuacaoDoJogador + (primeiroJogadorVenceu ? 1 : 0),
+        pontuacaoDaIa: resposta.status === 'partida_finalizada'
+          ? (resposta.resultado?.pontuacaoSegundo ?? 0)
+          : pontuacaoDaIa + (primeiroJogadorVenceu ? 0 : 1),
+        partidaFinalizada: resposta.partidaFinalizada ?? false,
+        vencedor: resposta.status === 'partida_finalizada'
+          ? (primeiroJogadorVenceu ? 'jogador' : 'ia')
+          : null,
+      }
+
+      setUltimoResultado(resultadoFormatado)
+      setPontuacaoDoJogador(resultadoFormatado.pontuacaoDoJogador)
+      setPontuacaoDaIa(resultadoFormatado.pontuacaoDaIa)
+
+      setHistorico((prev) => [
+        ...prev,
+        {
+          numeroDaRodada: dados.numeroDaRodada,
+          numeroDoJogador: numeroParaEnvio,
+          paridadeDoJogador: paridadeDoJogadorAtual,
+          numeroDaIa,
+          paridadeDaIa: paridadeDoJogadorAtual === 'par' ? 'impar' : 'par',
+          jogadorVenceu: primeiroJogadorVenceu,
+        },
+      ])
+
+      setEstado('EXIBINDO_RESULTADO')
+
+      setTimeout(() => {
+        if (resultadoFormatado.partidaFinalizada) {
+          setVencedor(resultadoFormatado.vencedor)
+          setPartidaFinalizada(true)
+          setEstado('FIM_DA_PARTIDA')
+        } else {
+          setRodadaAtual(resultadoFormatado.numeroDaRodada + 1)
+          setNumeroSelecionado(null)
+          setEstado('ESCOLHENDO')
+        }
+      }, INTERVALO_ANIMACAO_MS)
+    } catch (err) {
+      const mensagem = err instanceof Error ? err.message : 'Erro ao confirmar jogada.'
+      setErro(mensagem)
+      setEstado('ESCOLHENDO')
+    }
+  }, [
+    estado,
+    idDaPartida,
+    rodadaAtual,
+    numeroSelecionado,
+    pontuacaoDoJogador,
+    pontuacaoDaIa,
+    minimo,
+    maximo,
+  ])
+
   const handleConfirmar = useCallback(async () => {
     if (!podeConfirmar || estado !== 'ESCOLHENDO') return
 
@@ -267,8 +373,8 @@ export default function TabuleiroDeParOuImpar({
           segundos={20}
           emExecucao={estado === 'ESCOLHENDO'}
           onTempoEsgotado={() => {
-            if (numeroSelecionado && estado === 'ESCOLHENDO') {
-              handleConfirmar()
+            if (estado === 'ESCOLHENDO') {
+              lidarEnviarJogadaComTimeout()
             }
           }}
         />
