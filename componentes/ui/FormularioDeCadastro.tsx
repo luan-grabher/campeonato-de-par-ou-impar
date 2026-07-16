@@ -13,6 +13,7 @@ async function cadastrarViaApi(_estadoAnterior: unknown, formData: FormData) {
       acao: 'cadastrar',
       email: formData.get('email'),
       senha: formData.get('senha'),
+      nome: formData.get('nome'),
     })
   } catch (erro) {
     return {

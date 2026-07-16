@@ -1,3 +1,4 @@
+import { sortearParidadeInicial } from '@/core/calculo/atribuirParidade'
 import { NextRequest, NextResponse } from 'next/server'
 import { randomUUID } from 'crypto'
 import { criarClienteServidor } from '@/servidor/integracoes/supabase/criarClienteServidor'
@@ -33,6 +34,7 @@ export async function POST(req: NextRequest) {
       status: 'em_andamento',
       total_de_rodadas_previsto: totalDeRodadas,
       rodada_atual: 1,
+      paridade_inicial_do_primeiro: sortearParidadeInicial(),
     })
 
     if (erroPartida) {

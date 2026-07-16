@@ -1,5 +1,6 @@
 'use server'
 
+import { sortearParidadeInicial } from '@/core/calculo/atribuirParidade'
 import { criarClienteServidor } from '@/servidor/integracoes/supabase/criarClienteServidor'
 import { criarClienteServidorAdmin } from '@/servidor/integracoes/supabase/criarClienteServidorAdmin'
 import { randomUUID } from 'crypto'
@@ -35,6 +36,7 @@ export async function iniciarPartidaContraIa(
     status: 'em_andamento',
     total_de_rodadas_previsto: totalDeRodadas,
     rodada_atual: 1,
+    paridade_inicial_do_primeiro: sortearParidadeInicial(),
   })
 
   if (erroPartida) {
