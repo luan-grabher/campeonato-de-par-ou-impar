@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useRef, useCallback } from 'react'
-import { criarClienteNavegador } from '@/servidor/integracoes/supabase/criarClienteNavegador'
+import { criarClienteNavegador } from '@/hooks/criarClienteNavegador'
 import type { RealtimeChannel } from '@supabase/supabase-js'
 
 export type EventoDaPartida =

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { ArrowLeft, Trophy } from 'lucide-react'
 import Link from 'next/link'
 import Botao from '@/componentes/ui/Botao'
-import { criarCampeonato } from '@/servidor/acoes/criarCampeonato'
+import { chamarApi } from '@/hooks/usarApiCliente'
 import styles from './criar.module.css'
 
 const OPCES_DE_JOGADORES = [8, 16, 32, 64] as const
@@ -22,7 +22,8 @@ export default function PaginaCriarCampeonato() {
     setCarregando(true)
     setErro(null)
 
-    const resultado = await criarCampeonato({
+    const resultado = await chamarApi('/api/campeonatos', {
+      acao: 'criar',
       nome: nome.trim(),
       totalDeJogadores,
     })

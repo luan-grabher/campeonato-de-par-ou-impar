@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { ArrowLeft, Check, Copy } from 'lucide-react'
 import ModalDeCriacaoDeSala from '@/componentes/ui/ModalDeCriacaoDeSala'
 import Botao from '@/componentes/ui/Botao'
-import { criarSalaPrivada } from '@/servidor/acoes/criarSalaPrivada'
+import { chamarApi } from '@/hooks/usarApiCliente'
 import { usarJogadorAutenticado } from '@/hooks/usarJogadorAutenticado'
 import styles from './criar.module.css'
 
@@ -26,10 +26,11 @@ export default function PaginaCriarSala() {
     setCarregando(true)
     setErro(null)
 
-    const resultado = await criarSalaPrivada({
+    const resultado = await chamarApi('/api/salas', {
+      acao: 'criar-sala',
       titulo: dados.titulo,
       totalDeRodadas: dados.totalDeRodadas,
-      modoDeJogo: dados.modoDeJogo as any,
+      modoDeJogo: dados.modoDeJogo,
     })
 
     setCarregando(false)

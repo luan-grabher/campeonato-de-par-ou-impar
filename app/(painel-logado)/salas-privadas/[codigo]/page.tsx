@@ -4,8 +4,8 @@ import { useEffect, useState, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import TelaDeSalaPrivada from '@/componentes/jogo/TelaDeSalaPrivada'
 import TelaDeEspera from '@/componentes/jogo/TelaDeEspera'
-import { buscarSalaPorCodigo } from '@/servidor/acoes/buscarSalaPorCodigo'
-import { entrarEmSalaPrivada } from '@/servidor/acoes/entrarEmSalaPrivada'
+import { chamarApi } from '@/hooks/usarApiCliente'
+import { criarClienteNavegador } from '@/hooks/criarClienteNavegador'
 import { usarJogadorAutenticado } from '@/hooks/usarJogadorAutenticado'
 import type { ModoDeJogo } from '@/core/tipos/partida'
 import styles from './page.module.css'
@@ -39,7 +39,7 @@ export default function PaginaDaSala() {
     if (!codigo) return
 
     async function carregarSala() {
-      const resultado = await buscarSalaPorCodigo(codigo)
+      const resultado = await chamarApi('/api/salas', { acao: 'buscar-sala', codigo })
 
       if (resultado.status === 'erro') {
         setEstado({ status: 'erro', mensagem: resultado.mensagem })
@@ -71,7 +71,7 @@ export default function PaginaDaSala() {
       if (sala.status === 'em_andamento') {
         // Buscar partida vinculada
         try {
-          const supabase = (await import('@/servidor/integracoes/supabase/criarClienteNavegador')).criarClienteNavegador()
+          const supabase = criarClienteNavegador()
           const { data: partida } = await supabase
             .from('partidas')
             .select('id')
@@ -100,7 +100,7 @@ export default function PaginaDaSala() {
     }
 
     // Não é anfitrião — entrar na sala
-    const resultado = await entrarEmSalaPrivada(codigo)
+    const resultado = await chamarApi('/api/salas', { acao: 'entrar-na-sala', codigo })
 
     if (resultado.status === 'erro') {
       setErroAcao(resultado.mensagem)

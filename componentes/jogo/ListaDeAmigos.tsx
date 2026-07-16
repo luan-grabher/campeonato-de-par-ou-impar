@@ -4,12 +4,18 @@ import { useState, useEffect, useCallback } from 'react'
 import CartaoDeJogador from '@/componentes/ui/CartaoDeJogador'
 import BadgeDeElo from '@/componentes/ui/BadgeDeElo'
 import Botao from '@/componentes/ui/Botao'
-import { buscarListaDeAmigos } from '@/servidor/acoes/buscarListaDeAmigos'
-import { removerAmigo } from '@/servidor/acoes/removerAmigo'
+import { chamarApi } from '@/hooks/usarApiCliente'
 import { determinarFaixaDoElo } from '@/core/constantes/faixasDeElo'
 import { UserMinus, Users } from 'lucide-react'
-import type { DadosDoAmigo } from '@/servidor/acoes/buscarListaDeAmigos'
 import styles from './ListaDeAmigos.module.css'
+
+interface DadosDoAmigo {
+  id: string
+  nome: string
+  urlDoAvatar: string | null
+  elo: number
+  online: boolean
+}
 
 function badgeKeyFromNome(nome: string): string {
   const mapa: Record<string, string> = {
@@ -32,7 +38,7 @@ export default function ListaDeAmigos() {
 
   const carregarAmigos = useCallback(async () => {
     setCarregando(true)
-    const dados = await buscarListaDeAmigos()
+    const dados = await chamarApi('/api/amigos', { acao: 'buscar-lista' })
     setAmigos(dados)
     setCarregando(false)
   }, [])
@@ -43,7 +49,7 @@ export default function ListaDeAmigos() {
 
   async function handleRemover(id: string) {
     setRemovendo(true)
-    const resultado = await removerAmigo(id)
+    const resultado = await chamarApi('/api/amigos', { acao: 'remover-amigo', idDoAmigo: id })
     if (resultado.status === 'sucesso') {
       setAmigos((prev) => prev.filter((a) => a.id !== id))
     }

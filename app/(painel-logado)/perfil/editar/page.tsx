@@ -1,18 +1,42 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { atualizarPerfil } from '@/servidor/acoes/atualizarPerfil'
+import { chamarApi } from '@/hooks/usarApiCliente'
 import Botao from '@/componentes/ui/Botao'
 import InputTexto from '@/componentes/ui/InputTexto'
 import styles from './page.module.css'
 
 export default function PaginaEditarPerfil() {
   const router = useRouter()
-  const [estado, acao, pendente] = useActionState(atualizarPerfil, null)
+  const [carregando, setCarregando] = useState(false)
+  const [sucesso, setSucesso] = useState(false)
+  const [erro, setErro] = useState<string | null>(null)
 
-  if (estado?.sucesso) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    setCarregando(true)
+    setErro(null)
+
+    const formData = new FormData(e.currentTarget)
+    const resultado = await chamarApi('/api/perfil', {
+      acao: 'atualizar-perfil',
+      nome: formData.get('nome'),
+      pais: formData.get('pais'),
+      urlDoAvatar: formData.get('urlDoAvatar'),
+    })
+
+    setCarregando(false)
+
+    if (resultado?.sucesso) {
+      setSucesso(true)
+    } else {
+      setErro(resultado?.erro ?? 'Erro ao atualizar perfil.')
+    }
+  }
+
+  if (sucesso) {
     return (
       <div className={styles.pagina}>
         <div className={styles.container}>
@@ -41,10 +65,10 @@ export default function PaginaEditarPerfil() {
           <h1 className={styles.titulo}>Editar Perfil</h1>
         </div>
 
-        <form action={acao} className={styles.formulario}>
-          {estado?.erro && (
+        <form onSubmit={handleSubmit} className={styles.formulario}>
+          {erro && (
             <div className={styles.erroGlobal} role="alert">
-              {estado.erro}
+              {erro}
             </div>
           )}
 
@@ -76,7 +100,7 @@ export default function PaginaEditarPerfil() {
             <Botao
               type="submit"
               variante="primario"
-              carregando={pendente}
+              carregando={carregando}
               larguraTotal
             >
               Salvar Alterações

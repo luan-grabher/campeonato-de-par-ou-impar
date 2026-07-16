@@ -4,7 +4,7 @@ import { useState, useCallback } from 'react'
 import Image from 'next/image'
 import { ShoppingCart, Check, Loader2, Store } from 'lucide-react'
 import type { Cosmetico } from '@/supabase/tipos.gen'
-import { comprarCosmetico } from '@/servidor/acoes/comprarCosmetico'
+import { chamarApi } from '@/hooks/usarApiCliente'
 import { TIPO_DO_COSMETICO } from '@/supabase/tipos.gen'
 import styles from './LojaDeCosmeticos.module.css'
 
@@ -59,7 +59,7 @@ export default function LojaDeCosmeticos({
       setComprando((prev) => new Set(prev).add(id))
       setMensagem(null)
 
-      const resultado = await comprarCosmetico(id)
+      const resultado = await chamarApi<{ sucesso: boolean; erro?: string; moedasRestantes?: number }>('/api/loja', { acao: 'comprar-cosmetico', idDoCosmetico: id })
 
       setComprando((prev) => {
         const novo = new Set(prev)

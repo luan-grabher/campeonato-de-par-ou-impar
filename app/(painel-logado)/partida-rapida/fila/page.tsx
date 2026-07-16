@@ -3,8 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useRef } from 'react'
 import TelaDeEspera from '@/componentes/jogo/TelaDeEspera'
-import { entrarNaFilaDePartida } from '@/servidor/acoes/entrarNaFilaDePartida'
-import { sairDaFilaDePartida } from '@/servidor/acoes/sairDaFilaDePartida'
+import { chamarApi } from '@/hooks/usarApiCliente'
 import { usarJogadorAutenticado } from '@/hooks/usarJogadorAutenticado'
 import styles from './page.module.css'
 
@@ -18,7 +17,7 @@ export default function PaginaFilaDePartida() {
     if (filaIniciadaRef.current || redirecionouRef.current) return
     filaIniciadaRef.current = true
 
-    const resultado = await entrarNaFilaDePartida()
+    const resultado = await chamarApi('/api/fila-de-partida', { acao: 'entrar' })
 
     if (resultado.status === 'partida_encontrada') {
       redirecionouRef.current = true
@@ -28,7 +27,7 @@ export default function PaginaFilaDePartida() {
   }, [router])
 
   const lidarCancelar = useCallback(async () => {
-    await sairDaFilaDePartida()
+    await chamarApi('/api/fila-de-partida', { acao: 'sair' })
     router.push('/partida-rapida')
   }, [router])
 
@@ -42,7 +41,7 @@ export default function PaginaFilaDePartida() {
     const intervalo = setInterval(async () => {
       if (redirecionouRef.current) return
 
-      const resultado = await entrarNaFilaDePartida()
+      const resultado = await chamarApi('/api/fila-de-partida', { acao: 'entrar' })
 
       if (resultado.status === 'partida_encontrada') {
         redirecionouRef.current = true

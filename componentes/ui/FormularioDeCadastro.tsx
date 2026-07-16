@@ -2,14 +2,29 @@
 
 import { useActionState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { cadastrarUsuario } from '@/servidor/acoes/auth/cadastrarUsuario'
+import { chamarApi } from '@/hooks/usarApiCliente'
 import InputTexto from './InputTexto'
 import Botao from './Botao'
 import styles from './FormularioDeCadastro.module.css'
 
+async function cadastrarViaApi(_estadoAnterior: unknown, formData: FormData) {
+  try {
+    return await chamarApi<{ sucesso: boolean; erro?: string }>('/api/auth', {
+      acao: 'cadastrar',
+      email: formData.get('email'),
+      senha: formData.get('senha'),
+    })
+  } catch (erro) {
+    return {
+      sucesso: false,
+      erro: erro instanceof Error ? erro.message : 'Erro inesperado. Tente novamente.',
+    }
+  }
+}
+
 export default function FormularioDeCadastro() {
   const router = useRouter()
-  const [estado, acao, pendente] = useActionState(cadastrarUsuario, null)
+  const [estado, acao, pendente] = useActionState(cadastrarViaApi, null)
 
   useEffect(() => {
     if (estado?.sucesso) {

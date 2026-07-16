@@ -5,11 +5,19 @@ import { useRouter } from 'next/navigation'
 import { Trophy, Plus } from 'lucide-react'
 import ListaDeCampeonatos from '@/componentes/jogo/ListaDeCampeonatos'
 import Botao from '@/componentes/ui/Botao'
-import { buscarCampeonatosAtivos } from '@/servidor/acoes/buscarCampeonatosAtivos'
-import { inscreverNoCampeonato } from '@/servidor/acoes/inscreverNoCampeonato'
-import { cancelarInscricaoNoCampeonato } from '@/servidor/acoes/cancelarInscricaoNoCampeonato'
-import type { CampeonatoAtivo } from '@/servidor/acoes/buscarCampeonatosAtivos'
+import { chamarApi } from '@/hooks/usarApiCliente'
 import styles from './page.module.css'
+
+interface CampeonatoAtivo {
+  id: string
+  nome: string
+  formato: string
+  totalDeJogadores: number
+  status: string
+  createdAt: string
+  totalDeInscritos: number
+  inscrito: boolean
+}
 
 export default function PaginaCampeonatos() {
   const router = useRouter()
@@ -21,7 +29,7 @@ export default function PaginaCampeonatos() {
   const carregar = useCallback(async () => {
     setCarregando(true)
     setErro(null)
-    const resultado = await buscarCampeonatosAtivos()
+    const resultado = await chamarApi('/api/campeonatos', { acao: 'listar' })
     if (resultado.status === 'sucesso') {
       setCampeonatos(resultado.campeonatos)
     } else {
@@ -36,7 +44,7 @@ export default function PaginaCampeonatos() {
 
   const handleInscrever = async (id: string) => {
     setCarregandoId(id)
-    const resultado = await inscreverNoCampeonato(id)
+    const resultado = await chamarApi('/api/campeonatos', { acao: 'inscrever', idDeCampeonato: id })
     if (resultado.status === 'sucesso') {
       await carregar()
     } else {
@@ -47,7 +55,7 @@ export default function PaginaCampeonatos() {
 
   const handleCancelarInscricao = async (id: string) => {
     setCarregandoId(id)
-    const resultado = await cancelarInscricaoNoCampeonato(id)
+    const resultado = await chamarApi('/api/campeonatos', { acao: 'cancelar-inscricao', idDeCampeonato: id })
     if (resultado.status === 'sucesso') {
       await carregar()
     } else {

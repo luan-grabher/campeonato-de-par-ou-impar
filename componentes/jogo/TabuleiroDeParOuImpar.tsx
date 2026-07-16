@@ -8,7 +8,7 @@ import AnimacaoDeRevelacao from '@/componentes/ui/AnimacaoDeRevelacao'
 import EfeitoDeVitoria from '@/componentes/ui/EfeitoDeVitoria'
 import Botao from '@/componentes/ui/Botao'
 import HistoricoDeRodadas from './HistoricoDeRodadas'
-import type { ResultadoDaRodadaConfirmada } from '@/servidor/acoes/confirmarJogadaContraIa'
+import { chamarApi } from '@/hooks/usarApiCliente'
 import styles from './TabuleiroDeParOuImpar.module.css'
 
 type EstadoDoJogo =
@@ -16,6 +16,28 @@ type EstadoDoJogo =
   | 'AGUARDANDO_RESULTADO'
   | 'EXIBINDO_RESULTADO'
   | 'FIM_DA_PARTIDA'
+
+interface ResultadoDaRodadaConfirmada {
+  numeroDaRodada: number
+  numeroDoJogador: number
+  paridadeDoJogador: 'par' | 'impar'
+  numeroDaIa: number
+  paridadeDaIa: 'par' | 'impar'
+  resultado: {
+    somaDosNumeros: number
+    paridadeResultante: 'par' | 'impar'
+    primeiroJogadorVenceu: boolean
+  }
+  pontuacaoDoJogador: number
+  pontuacaoDaIa: number
+  partidaFinalizada: boolean
+  vencedor: 'jogador' | 'ia' | null
+}
+
+interface IniciarPartidaResultado {
+  idDaPartida: string
+  totalDeRodadas: number
+}
 
 interface RodadaHistorico {
   numeroDaRodada: number
@@ -76,16 +98,15 @@ export default function TabuleiroDeParOuImpar({
     setEstado('AGUARDANDO_RESULTADO')
 
     try {
-      const { confirmarJogadaContraIa } = await import(
-        '@/servidor/acoes/confirmarJogadaContraIa'
+      const resultado = await chamarApi<ResultadoDaRodadaConfirmada>(
+        '/api/partida-contra-ia/confirmar-jogada',
+        {
+          idDaPartida,
+          numeroDaRodada: rodadaAtual,
+          numeroEscolhido: numeroSelecionado!,
+          paridadeEscolhida: paridadeSelecionada!,
+        }
       )
-
-      const resultado = await confirmarJogadaContraIa({
-        idDaPartida,
-        numeroDaRodada: rodadaAtual,
-        numeroEscolhido: numeroSelecionado!,
-        paridadeEscolhida: paridadeSelecionada!,
-      })
 
       setUltimoResultado(resultado)
       setPontuacaoDoJogador(resultado.pontuacaoDoJogador)
@@ -137,10 +158,11 @@ export default function TabuleiroDeParOuImpar({
 
   async function handleJogarNovamente() {
     try {
-      const { iniciarPartidaContraIa } = await import(
-        '@/servidor/acoes/iniciarPartidaContraIa'
+      const novaPartida = await chamarApi<IniciarPartidaResultado>(
+        '/api/partida-contra-ia/iniciar',
+        { nomeDoJogador }
       )
-      const novaPartida = await iniciarPartidaContraIa(nomeDoJogador)
+
       router.push(
         `/partida-rapida-ia/jogo?id=${novaPartida.idDaPartida}&nome=${encodeURIComponent(nomeDoJogador)}`
       )

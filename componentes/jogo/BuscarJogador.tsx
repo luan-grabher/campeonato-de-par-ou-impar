@@ -5,12 +5,20 @@ import CartaoDeJogador from '@/componentes/ui/CartaoDeJogador'
 import BadgeDeElo from '@/componentes/ui/BadgeDeElo'
 import Botao from '@/componentes/ui/Botao'
 import InputTexto from '@/componentes/ui/InputTexto'
-import { buscarJogadorPorNome } from '@/servidor/acoes/buscarJogadorPorNome'
-import { enviarConviteDeAmizade } from '@/servidor/acoes/enviarConviteDeAmizade'
+import { chamarApi } from '@/hooks/usarApiCliente'
 import { determinarFaixaDoElo } from '@/core/constantes/faixasDeElo'
 import { Search, UserPlus, Check, Clock, Loader2 } from 'lucide-react'
-import type { ResultadoBuscaJogador } from '@/servidor/acoes/buscarJogadorPorNome'
 import styles from './BuscarJogador.module.css'
+
+interface ResultadoBuscaJogador {
+  id: string
+  nome: string
+  urlDoAvatar: string | null
+  elo: number
+  convitePendenteEnviado?: boolean
+  convitePendenteRecebido?: boolean
+  jaEhAmigo?: boolean
+}
 
 function badgeKeyFromNome(nome: string): string {
   const mapa: Record<string, string> = {
@@ -40,7 +48,7 @@ export default function BuscarJogador() {
     setBuscou(true)
     setMensagem(null)
 
-    const dados = await buscarJogadorPorNome(termo)
+    const dados = await chamarApi('/api/perfil', { acao: 'buscar-jogador', nome: termo })
     setResultados(dados)
     setCarregando(false)
   }, [termo])
@@ -49,7 +57,7 @@ export default function BuscarJogador() {
     setJogadorEmAcao(id)
     setMensagem(null)
 
-    const resultado = await enviarConviteDeAmizade(id)
+    const resultado = await chamarApi('/api/amigos', { acao: 'enviar-convite', idDoDestinatario: id })
     if (resultado.status === 'sucesso') {
       setResultados((prev) =>
         prev.map((j) =>

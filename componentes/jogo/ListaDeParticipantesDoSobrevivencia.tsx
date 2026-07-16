@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { Skull, Trophy, User } from 'lucide-react'
-import { criarClienteNavegador } from '@/servidor/integracoes/supabase/criarClienteNavegador'
+import { criarClienteNavegador } from '@/hooks/criarClienteNavegador'
 import styles from './ListaDeParticipantesDoSobrevivencia.module.css'
 
 interface Participante {

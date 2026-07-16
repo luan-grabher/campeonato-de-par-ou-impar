@@ -2,14 +2,29 @@
 
 import { useActionState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { loginComEmail } from '@/servidor/acoes/auth/loginComEmail'
+import { chamarApi } from '@/hooks/usarApiCliente'
 import InputTexto from './InputTexto'
 import Botao from './Botao'
 import styles from './FormularioDeLogin.module.css'
 
+async function loginViaApi(_estadoAnterior: unknown, formData: FormData) {
+  try {
+    return await chamarApi<{ sucesso: boolean; erro?: string }>('/api/auth', {
+      acao: 'login-email',
+      email: formData.get('email'),
+      senha: formData.get('senha'),
+    })
+  } catch (erro) {
+    return {
+      sucesso: false,
+      erro: erro instanceof Error ? erro.message : 'Erro inesperado. Tente novamente.',
+    }
+  }
+}
+
 export default function FormularioDeLogin() {
   const router = useRouter()
-  const [estado, acao, pendente] = useActionState(loginComEmail, null)
+  const [estado, acao, pendente] = useActionState(loginViaApi, null)
 
   useEffect(() => {
     if (estado?.sucesso) {

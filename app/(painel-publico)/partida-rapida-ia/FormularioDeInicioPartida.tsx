@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import InputTexto from '@/componentes/ui/InputTexto'
 import Botao from '@/componentes/ui/Botao'
+import { chamarApi } from '@/hooks/usarApiCliente'
 import styles from './partida-rapida-ia.module.css'
 
 export default function FormularioDeInicioPartida() {
@@ -27,11 +28,9 @@ export default function FormularioDeInicioPartida() {
     setCarregando(true)
 
     try {
-      const { iniciarPartidaContraIa } = await import(
-        '@/servidor/acoes/iniciarPartidaContraIa'
-      )
-
-      const resultado = await iniciarPartidaContraIa(nomeFinal)
+      const resultado = await chamarApi('/api/partida-contra-ia/iniciar', {
+        nomeDoJogador: nomeFinal,
+      })
 
       router.push(
         `/partida-rapida-ia/jogo?id=${resultado.idDaPartida}&nome=${encodeURIComponent(nomeFinal)}`

@@ -4,12 +4,9 @@ import { useState, useEffect, useCallback } from 'react'
 import CartaoDeJogador from '@/componentes/ui/CartaoDeJogador'
 import BadgeDeElo from '@/componentes/ui/BadgeDeElo'
 import Botao from '@/componentes/ui/Botao'
-import { buscarConvitesPendentes } from '@/servidor/acoes/buscarConvitesPendentes'
-import { aceitarConviteDeAmizade } from '@/servidor/acoes/aceitarConviteDeAmizade'
-import { recusarConviteDeAmizade } from '@/servidor/acoes/recusarConviteDeAmizade'
+import { chamarApi } from '@/hooks/usarApiCliente'
 import { determinarFaixaDoElo } from '@/core/constantes/faixasDeElo'
 import { Mail, Check, X, UserPlus } from 'lucide-react'
-import type { DadosDoConvite } from '@/servidor/acoes/buscarConvitesPendentes'
 import styles from './ConvitesPendentes.module.css'
 
 function badgeKeyFromNome(nome: string): string {
@@ -25,6 +22,13 @@ function badgeKeyFromNome(nome: string): string {
   return mapa[nome] ?? 'ferro'
 }
 
+interface DadosDoConvite {
+  id: string
+  nomeDoRemetente: string
+  urlDoAvatarDoRemetente: string | null
+  eloDoRemetente: number
+}
+
 export default function ConvitesPendentes() {
   const [convites, setConvites] = useState<DadosDoConvite[]>([])
   const [carregando, setCarregando] = useState(true)
@@ -32,7 +36,7 @@ export default function ConvitesPendentes() {
 
   const carregarConvites = useCallback(async () => {
     setCarregando(true)
-    const dados = await buscarConvitesPendentes()
+    const dados = await chamarApi('/api/amigos', { acao: 'buscar-convites' })
     setConvites(dados)
     setCarregando(false)
   }, [])
@@ -43,7 +47,7 @@ export default function ConvitesPendentes() {
 
   async function handleAceitar(id: string) {
     setConviteEmAcao(id)
-    const resultado = await aceitarConviteDeAmizade(id)
+    const resultado = await chamarApi('/api/amigos', { acao: 'aceitar-convite', idDoConvite: id })
     if (resultado.status === 'sucesso') {
       setConvites((prev) => prev.filter((c) => c.id !== id))
     }
@@ -52,7 +56,7 @@ export default function ConvitesPendentes() {
 
   async function handleRecusar(id: string) {
     setConviteEmAcao(id)
-    const resultado = await recusarConviteDeAmizade(id)
+    const resultado = await chamarApi('/api/amigos', { acao: 'recusar-convite', idDoConvite: id })
     if (resultado.status === 'sucesso') {
       setConvites((prev) => prev.filter((c) => c.id !== id))
     }

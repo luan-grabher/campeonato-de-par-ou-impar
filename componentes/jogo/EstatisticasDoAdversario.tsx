@@ -1,11 +1,17 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import {
-  buscarEstatisticasDoAdversario,
-  type EstatisticasDoAdversario,
-} from '@/servidor/acoes/buscarEstatisticasDoAdversario'
+import { chamarApi } from '@/hooks/usarApiCliente'
 import styles from './EstatisticasDoAdversario.module.css'
+
+interface EstatisticasDoAdversario {
+  frequenciaDosNumeros: Record<number, number>
+  numeroMaisUsado: number | null
+  frequenciaDePares: number
+  frequenciaDeImpares: number
+  sequenciaAtual: number[]
+  taxaDeRepeticao: number
+}
 
 interface EstatisticasDoAdversarioProps {
   idDoOponente: string
@@ -22,10 +28,7 @@ export default function EstatisticasDoAdversario({
 
   const carregarEstatisticas = useCallback(async () => {
     try {
-      const resultado = await buscarEstatisticasDoAdversario({
-        idDaPartida,
-        idDoOponente,
-      })
+      const resultado = await chamarApi<EstatisticasDoAdversario | { erro: string }>('/api/dados', { acao: 'buscar-estatisticas', idDoAdversario: idDoOponente })
 
       if ('erro' in resultado) {
         setErro(resultado.erro)

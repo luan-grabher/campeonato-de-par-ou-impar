@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Skull, Trophy, Swords, Users } from 'lucide-react'
-import { entrarNaFilaDeSobrevivencia } from '@/servidor/acoes/entrarNaFilaDeSobrevivencia'
-import { sairDaFilaDeSobrevivencia } from '@/servidor/acoes/sairDaFilaDeSobrevivencia'
+import { chamarApi } from '@/hooks/usarApiCliente'
+import { criarClienteNavegador } from '@/hooks/criarClienteNavegador'
 import styles from './TelaDeSobrevivencia.module.css'
 
 interface TelaDeSobrevivenciaProps {
@@ -33,7 +33,10 @@ export default function TelaDeSobrevivencia({ idDoJogador }: TelaDeSobrevivencia
 
     setEstado({ tipo: 'buscando_partida' })
 
-    const resultado = await entrarNaFilaDeSobrevivencia()
+    const resultado = await chamarApi<{ status: string; idDaPartida?: string; mensagem?: string }>(
+      '/api/sobrevivencia',
+      { acao: 'entrar' }
+    )
 
     setCarregando(false)
 
@@ -49,7 +52,7 @@ export default function TelaDeSobrevivencia({ idDoJogador }: TelaDeSobrevivencia
   }, [router])
 
   const lidarCancelar = useCallback(async () => {
-    await sairDaFilaDeSobrevivencia()
+    await chamarApi('/api/sobrevivencia', { acao: 'sair' })
     filaIniciadaRef.current = false
     setEstado({ tipo: 'menu' })
   }, [])
@@ -61,7 +64,10 @@ export default function TelaDeSobrevivencia({ idDoJogador }: TelaDeSobrevivencia
       const intervalo = setInterval(async () => {
       if (redirecionouRef.current) return
 
-      const resultado = await entrarNaFilaDeSobrevivencia()
+      const resultado = await chamarApi<{ status: string; idDaPartida?: string; mensagem?: string }>(
+        '/api/sobrevivencia',
+        { acao: 'entrar' }
+      )
 
       if (resultado.status === 'partida_encontrada') {
         redirecionouRef.current = true
@@ -85,7 +91,6 @@ export default function TelaDeSobrevivencia({ idDoJogador }: TelaDeSobrevivencia
   useEffect(() => {
     async function buscarTotal() {
       try {
-        const { criarClienteNavegador } = await import('@/servidor/integracoes/supabase/criarClienteNavegador')
         const supabase = criarClienteNavegador()
         const { count } = await supabase
           .from('fila_de_sobrevivencia')

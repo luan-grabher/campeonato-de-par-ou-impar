@@ -8,8 +8,7 @@ import SeletorDeParidade from '@/componentes/ui/SeletorDeParidade'
 import CronometroDaRodada from '@/componentes/ui/CronometroDaRodada'
 import AnimacaoDeRevelacao from '@/componentes/ui/AnimacaoDeRevelacao'
 import Botao from '@/componentes/ui/Botao'
-import { confirmarJogada } from '@/servidor/acoes/confirmarJogada'
-import { confirmarJogadaRelampago } from '@/servidor/acoes/confirmarJogadaRelampago'
+import { chamarApi } from '@/hooks/usarApiCliente'
 import { usarAssinaturaRealtime } from '@/hooks/usarAssinaturaRealtime'
 import { usarTimerRelampago } from '@/hooks/usarTimerRelampago'
 import type { PerfilDoJogador } from '@/core/tipos/jogador'
@@ -131,19 +130,22 @@ export default function TelaDePartida({
     const numeroAleatorio = numeroSelecionado ?? Math.floor(Math.random() * 2) + 1
     const paridadeAleatoria = paridadeSelecionada ?? (Math.random() < 0.5 ? 'par' : 'impar')
 
-    const resultado = await confirmarJogadaRelampago({
-      idDaPartida,
-      numeroDaRodada: rodadaAtual,
-      numeroEscolhido: numeroAleatorio,
-      paridadeEscolhida: paridadeAleatoria,
-      tokenDeIdempotencia: tokenRef.current,
-      timeoutNoCliente: true,
-    })
+    const resultado = await chamarApi<{ status: string; mensagem?: string }>(
+      '/api/partidas/confirmar-jogada-relampago',
+      {
+        idDaPartida,
+        numeroDaRodada: rodadaAtual,
+        numeroEscolhido: numeroAleatorio,
+        paridadeEscolhida: paridadeAleatoria,
+        tokenDeIdempotencia: tokenRef.current,
+        timeoutNoCliente: true,
+      }
+    )
 
     setCarregando(false)
 
     if (resultado.status === 'erro') {
-      setErro(resultado.mensagem)
+      setErro(resultado.mensagem ?? 'Erro ao confirmar jogada.')
       setEstadoJogo('aguardando_jogada')
       return
     }
@@ -240,34 +242,40 @@ export default function TelaDePartida({
     setEstadoJogo('jogada_enviada')
 
     if (ehRelampago) {
-      const resultado = await confirmarJogadaRelampago({
-        idDaPartida,
-        numeroDaRodada: rodadaAtual,
-        numeroEscolhido: numeroSelecionado,
-        paridadeEscolhida: paridadeSelecionada ?? (Math.random() < 0.5 ? 'par' : 'impar'),
-        tokenDeIdempotencia: tokenRef.current,
-      })
+      const resultado = await chamarApi<{ status: string; mensagem?: string }>(
+        '/api/partidas/confirmar-jogada-relampago',
+        {
+          idDaPartida,
+          numeroDaRodada: rodadaAtual,
+          numeroEscolhido: numeroSelecionado,
+          paridadeEscolhida: paridadeSelecionada ?? (Math.random() < 0.5 ? 'par' : 'impar'),
+          tokenDeIdempotencia: tokenRef.current,
+        }
+      )
 
       setCarregando(false)
 
       if (resultado.status === 'erro') {
-        setErro(resultado.mensagem)
+        setErro(resultado.mensagem ?? 'Erro ao confirmar jogada.')
         setEstadoJogo('aguardando_jogada')
         return
       }
     } else {
-      const resultado = await confirmarJogada({
-        idDaPartida,
-        numeroDaRodada: rodadaAtual,
-        numeroEscolhido: numeroSelecionado,
-        paridadeEscolhida: paridadeSelecionada ?? 'par',
-        tokenDeIdempotencia: tokenRef.current,
-      })
+      const resultado = await chamarApi<{ status: string; mensagem?: string }>(
+        '/api/partidas/confirmar-jogada',
+        {
+          idDaPartida,
+          numeroDaRodada: rodadaAtual,
+          numeroEscolhido: numeroSelecionado,
+          paridadeEscolhida: paridadeSelecionada ?? 'par',
+          tokenDeIdempotencia: tokenRef.current,
+        }
+      )
 
       setCarregando(false)
 
       if (resultado.status === 'erro') {
-        setErro(resultado.mensagem)
+        setErro(resultado.mensagem ?? 'Erro ao confirmar jogada.')
         setEstadoJogo('aguardando_jogada')
         return
       }

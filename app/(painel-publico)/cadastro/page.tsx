@@ -1,6 +1,8 @@
+'use client'
+
 import FormularioDeCadastro from '@/componentes/ui/FormularioDeCadastro'
 import Botao from '@/componentes/ui/Botao'
-import { loginComProvedor } from '@/servidor/acoes/auth/loginComProvedor'
+import { chamarApi } from '@/hooks/usarApiCliente'
 import styles from './cadastro.module.css'
 
 export default function PaginaDeCadastro() {
@@ -15,8 +17,7 @@ export default function PaginaDeCadastro() {
         <div className={styles.botoesOAuth}>
           <form
             action={async () => {
-              'use server'
-              await loginComProvedor('google')
+              await chamarApi('/api/auth', { acao: 'login-provedor', provedor: 'google' })
             }}
           >
             <Botao
@@ -36,8 +37,7 @@ export default function PaginaDeCadastro() {
 
           <form
             action={async () => {
-              'use server'
-              await loginComProvedor('discord')
+              await chamarApi('/api/auth', { acao: 'login-provedor', provedor: 'discord' })
             }}
           >
             <Botao

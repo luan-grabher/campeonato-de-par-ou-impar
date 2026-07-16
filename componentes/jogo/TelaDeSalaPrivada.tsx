@@ -6,7 +6,7 @@ import { Check, Copy, Share2, Play, Users, Clock, Swords } from 'lucide-react'
 import Botao from '@/componentes/ui/Botao'
 import CartaoDeJogador from '@/componentes/ui/CartaoDeJogador'
 import { usarJogadorAutenticado } from '@/hooks/usarJogadorAutenticado'
-import { criarClienteNavegador } from '@/servidor/integracoes/supabase/criarClienteNavegador'
+import { criarClienteNavegador } from '@/hooks/criarClienteNavegador'
 import type { ModoDeJogo } from '@/core/tipos/partida'
 import styles from './TelaDeSalaPrivada.module.css'
 

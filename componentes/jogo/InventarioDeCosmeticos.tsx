@@ -4,7 +4,7 @@ import { useState, useCallback } from 'react'
 import Image from 'next/image'
 import { Check, X, Loader2, Package } from 'lucide-react'
 import type { Cosmetico } from '@/supabase/tipos.gen'
-import { equiparCosmetico } from '@/servidor/acoes/equiparCosmetico'
+import { chamarApi } from '@/hooks/usarApiCliente'
 import { TIPO_DO_COSMETICO } from '@/supabase/tipos.gen'
 import styles from './InventarioDeCosmeticos.module.css'
 
@@ -53,7 +53,7 @@ export default function InventarioDeCosmeticos({
       setAlterando((prev) => new Set(prev).add(id))
       setMensagem(null)
 
-      const resultado = await equiparCosmetico(id, !equipado)
+      const resultado = await chamarApi<{ sucesso: boolean; erro?: string }>('/api/loja', { acao: 'equipar-cosmetico', idDoCosmetico: id })
 
       setAlterando((prev) => {
         const novo = new Set(prev)

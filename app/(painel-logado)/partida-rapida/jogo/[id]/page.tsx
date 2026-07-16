@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
-import { criarClienteNavegador } from '@/servidor/integracoes/supabase/criarClienteNavegador'
+import { criarClienteNavegador } from '@/hooks/criarClienteNavegador'
 import { usarJogadorAutenticado } from '@/hooks/usarJogadorAutenticado'
 import type { DadosDaPartida, ModoDeJogo } from '@/core/tipos/partida'
 import type { PerfilDoJogador } from '@/core/tipos/jogador'

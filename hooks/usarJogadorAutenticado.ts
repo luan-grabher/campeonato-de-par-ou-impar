@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { criarClienteNavegador } from '@/servidor/integracoes/supabase/criarClienteNavegador'
+import { criarClienteNavegador } from '@/hooks/criarClienteNavegador'
 import type { PerfilDoJogador } from '@/core/tipos/jogador'
 import type { User } from '@supabase/supabase-js'
 

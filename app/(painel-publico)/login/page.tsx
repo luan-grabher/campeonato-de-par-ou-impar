@@ -1,6 +1,8 @@
+'use client'
+
 import FormularioDeLogin from '@/componentes/ui/FormularioDeLogin'
 import Botao from '@/componentes/ui/Botao'
-import { loginComProvedor } from '@/servidor/acoes/auth/loginComProvedor'
+import { chamarApi } from '@/hooks/usarApiCliente'
 import styles from './login.module.css'
 
 export default function PaginaDeLogin() {
@@ -15,8 +17,7 @@ export default function PaginaDeLogin() {
         <div className={styles.botoesOAuth}>
           <form
             action={async () => {
-              'use server'
-              await loginComProvedor('google')
+              await chamarApi('/api/auth', { acao: 'login-provedor', provedor: 'google' })
             }}
           >
             <Botao
@@ -36,8 +37,7 @@ export default function PaginaDeLogin() {
 
           <form
             action={async () => {
-              'use server'
-              await loginComProvedor('discord')
+              await chamarApi('/api/auth', { acao: 'login-provedor', provedor: 'discord' })
             }}
           >
             <Botao
