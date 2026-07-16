@@ -1,0 +1,50 @@
+.indicador {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: var(--raioPequeno);
+  font-weight: 700;
+  transition: all var(--transicaoRapida);
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Tamanhos */
+.pequeno {
+  padding: 4px 12px;
+  font-size: 0.8rem;
+}
+
+.medio {
+  padding: 10px 20px;
+  font-size: 1rem;
+}
+
+.grande {
+  padding: 14px 28px;
+  font-size: 1.25rem;
+}
+
+/* Par — azul destaque primário */
+.par {
+  background: rgba(124, 92, 255, 0.12);
+  border: 2px solid var(--corDestaquePrimario);
+  color: var(--corDestaquePrimario);
+}
+
+/* Ímpar — verde água destaque secundário */
+.impar {
+  background: rgba(0, 212, 170, 0.12);
+  border: 2px solid var(--corDestaqueSecundario);
+  color: var(--corDestaqueSecundario);
+}
+
+.icone {
+  font-size: 1.1em;
+  line-height: 1;
+}
+
+.texto {
+  line-height: 1;
+}
