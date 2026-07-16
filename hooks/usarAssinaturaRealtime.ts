@@ -45,6 +45,17 @@ export type EventoDaPartida =
         pontuacaoSegundo: number
       }
     }
+  | {
+      tipo: 'escolher_paridade_do_desempate'
+      dados: Record<string, never>
+    }
+  | {
+      tipo: 'paridade_do_desempate_definida'
+      dados: {
+        paridadePrimeiro: 'par' | 'impar'
+        paridadeSegundo: 'par' | 'impar'
+      }
+    }
 
 interface EstadoAssinatura {
   eventos: EventoDaPartida[]
@@ -154,6 +165,33 @@ export function usarAssinaturaRealtime(
       }) => {
         lidarEvento({
           tipo: 'fim_da_partida',
+          dados: payload.payload,
+        })
+      }
+    )
+
+    canal.on(
+      'broadcast',
+      { event: 'escolher_paridade_do_desempate' },
+      (payload: { payload: Record<string, never> }) => {
+        lidarEvento({
+          tipo: 'escolher_paridade_do_desempate',
+          dados: payload.payload,
+        })
+      }
+    )
+
+    canal.on(
+      'broadcast',
+      { event: 'paridade_do_desempate_definida' },
+      (payload: {
+        payload: {
+          paridadePrimeiro: 'par' | 'impar'
+          paridadeSegundo: 'par' | 'impar'
+        }
+      }) => {
+        lidarEvento({
+          tipo: 'paridade_do_desempate_definida',
           dados: payload.payload,
         })
       }
