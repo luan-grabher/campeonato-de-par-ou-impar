@@ -6,13 +6,30 @@ import { validarJogada } from '@/core/validacao/validarJogada'
 import { calcularResultadoDaRodada } from '@/core/calculo/calcularResultadoDaRodada'
 import { calcularResultadoDoModoInvisivel } from '@/core/calculo/calcularResultadoDoModoInvisivel'
 import { calcularElo } from '@/core/calculo/calcularElo'
-import { INTERVALO_TRADICIONAL, gerarIntervaloDoCaos } from '@/core/constantes/intervalosDeNumeros'
+import {
+  INTERVALO_TRADICIONAL,
+  INTERVALO_EXPANDIDO,
+  gerarIntervaloDoCaos,
+} from '@/core/constantes/intervalosDeNumeros'
+import type { IntervaloDeNumeros } from '@/core/constantes/intervalosDeNumeros'
 import { K_FACTOR_PADRAO } from '@/core/constantes/pontuacao'
 import { verificarConquistas, type ConquistaNova } from '@/servidor/acoes/verificarConquistas'
 import { salvarReplay } from '@/servidor/acoes/salvarReplay'
 import { atribuirParidadeDaRodada, sortearParidadeInicial } from '@/core/calculo/atribuirParidade'
 import type { Paridade } from '@/core/calculo/atribuirParidade'
 import type { DadosDoReplay, RodadaDoReplay, JogadorDoReplay } from '@/core/tipos/replay'
+import { TEMPO_LIMITE_POR_MODO_MS } from '@/core/tipos/modoDeJogo'
+import type { ModoDeJogo } from '@/core/tipos/partida'
+import { gerarJogadaAleatoria } from '@/core/calculo/jogadaDaIaAleatoria'
+
+const INTERVALO_POR_MODO: Record<string, IntervaloDeNumeros> = {
+  classico: INTERVALO_TRADICIONAL,
+  dificil: INTERVALO_EXPANDIDO,
+  relampago: INTERVALO_TRADICIONAL,
+  invisivel: { minimo: 1, maximo: 10 },
+  caos: { minimo: 0, maximo: 20 },
+  sobrevivencia: { minimo: 1, maximo: 5 },
+}
 
 interface EntradaConfirmarJogada {
   idDaPartida: string
@@ -38,7 +55,7 @@ type DadosDaPartidaFinalizada = {
   novoEloPerdedor: number
   pontuacaoPrimeiro: number
   pontuacaoSegundo: number
-  conquistasNovas: ConquistaNova[]
+  conquistasNovas?: ConquistaNova[]
 }
 
 export type ResultadoConfirmarJogada =
@@ -56,6 +73,48 @@ export type ResultadoConfirmarJogada =
     }
   | { status: 'erro'; mensagem: string }
 
+function obterIntervaloDoModo(modo: string, rodadaId: string): IntervaloDeNumeros {
+  if (modo === 'caos') {
+    return gerarIntervaloDoCaos(rodadaId)
+  }
+  return INTERVALO_POR_MODO[modo] ?? INTERVALO_TRADICIONAL
+}
+
+function gerarNumeroAleatorioNoIntervalo(intervalo: IntervaloDeNumeros): number {
+  return (
+    Math.floor(Math.random() * (intervalo.maximo - intervalo.minimo + 1)) +
+    intervalo.minimo
+  )
+}
+
+function obterParidadeInicial(
+  partida: Record<string, unknown>
+): Paridade {
+  const valorInicial = partida.paridade_inicial_do_primeiro
+  return valorInicial === 'par' || valorInicial === 'impar'
+    ? valorInicial
+    : sortearParidadeInicial()
+}
+
+function computarParidadesDaRodada(
+  numeroDaRodada: number,
+  paridadeInicial: Paridade,
+  totalRodadas: number
+): { paridadeDoPrimeiro: Paridade; paridadeDoSegundo: Paridade } | null {
+  const atribuicao = atribuirParidadeDaRodada(numeroDaRodada, paridadeInicial, totalRodadas)
+  if ('desempate' in atribuicao) {
+    return null
+  }
+  return {
+    paridadeDoPrimeiro: atribuicao.paridadeDoPrimeiro,
+    paridadeDoSegundo: atribuicao.paridadeDoSegundo,
+  }
+}
+
+function obterParidadeComoParidade(valor: unknown): Paridade {
+  return valor === 'par' || valor === 'impar' ? valor : 'par'
+}
+
 export async function confirmarJogada(
   entrada: EntradaConfirmarJogada
 ): Promise<ResultadoConfirmarJogada> {
@@ -69,24 +128,9 @@ export async function confirmarJogada(
       data: { user },
     } = await supabase.auth.getUser()
 
-    if (!user) {
-      return { status: 'erro', mensagem: 'Usuário não autenticado.' }
-    }
-
-    // Validar jogada (número dentro do intervalo)
-    const validacao = validarJogada({
-      numeroEscolhido,
-      intervalo: INTERVALO_TRADICIONAL,
-      modo: 'classico',
-    })
-
-    if (!validacao.valida) {
-      return { status: 'erro', mensagem: validacao.erro ?? 'Jogada inválida.' }
-    }
-
     const supabaseAdmin = criarClienteServidorAdmin()
 
-    // Buscar partida e rodada atual
+    // Buscar partida
     const { data: partida } = await supabaseAdmin
       .from('partidas')
       .select('*')
@@ -101,17 +145,34 @@ export async function confirmarJogada(
       return { status: 'erro', mensagem: 'Partida não está em andamento.' }
     }
 
-    // Verificar se é a rodada certa
     if (partida.rodada_atual !== numeroDaRodada) {
       return { status: 'erro', mensagem: 'Rodada incorreta.' }
     }
 
-    // Determinar se o jogador é o primeiro ou segundo
-    const ehPrimeiro = partida.id_do_primeiro_jogador === user.id
-    const ehSegundo = partida.id_do_segundo_jogador === user.id
+    // Determinar posição do jogador
+    const ehIA = partida.id_do_segundo_jogador === null
 
-    if (!ehPrimeiro && !ehSegundo) {
-      return { status: 'erro', mensagem: 'Você não faz parte desta partida.' }
+    let ehPrimeiro = false
+    let ehSegundo = false
+
+    if (ehIA) {
+      if (
+        partida.id_do_primeiro_jogador &&
+        user &&
+        partida.id_do_primeiro_jogador !== user.id
+      ) {
+        return { status: 'erro', mensagem: 'Você não faz parte desta partida.' }
+      }
+      ehPrimeiro = true
+    } else {
+      if (!user) {
+        return { status: 'erro', mensagem: 'Usuário não autenticado.' }
+      }
+      ehPrimeiro = partida.id_do_primeiro_jogador === user.id
+      ehSegundo = partida.id_do_segundo_jogador === user.id
+      if (!ehPrimeiro && !ehSegundo) {
+        return { status: 'erro', mensagem: 'Você não faz parte desta partida.' }
+      }
     }
 
     // Buscar rodada atual
@@ -126,7 +187,7 @@ export async function confirmarJogada(
       return { status: 'erro', mensagem: 'Rodada não encontrada.' }
     }
 
-    // Verificar se o jogador já jogou esta rodada
+    // Verificar se já jogou
     if (ehPrimeiro && rodada.jogada_do_primeiro_confirmada) {
       return { status: 'erro', mensagem: 'Você já jogou esta rodada.' }
     }
@@ -134,32 +195,62 @@ export async function confirmarJogada(
       return { status: 'erro', mensagem: 'Você já jogou esta rodada.' }
     }
 
-    // Validação específica por modo (após conhecer partida.modo e rodada.id)
-    if (partida.modo === 'caos') {
-      const intervaloCaos = gerarIntervaloDoCaos(rodada.id)
-      if (numeroEscolhido < intervaloCaos.minimo || numeroEscolhido > intervaloCaos.maximo) {
+    // Determinar intervalo do modo
+    const modo = partida.modo as string
+    const intervalo = obterIntervaloDoModo(modo, rodada.id)
+
+    // Verificar timeout server-side
+    const rodadaCriadaEm = rodada.created_at
+      ? new Date(rodada.created_at as string).getTime()
+      : null
+
+    const tempoLimiteMs =
+      TEMPO_LIMITE_POR_MODO_MS[modo as ModoDeJogo] ?? 30_000
+
+    const timeoutAconteceu =
+      rodadaCriadaEm !== null && Date.now() - rodadaCriadaEm > tempoLimiteMs
+
+    let numeroParaUsar = numeroEscolhido
+    if (timeoutAconteceu) {
+      numeroParaUsar = gerarNumeroAleatorioNoIntervalo(intervalo)
+    }
+
+    // Validar jogada
+    const validacao = validarJogada({
+      numeroEscolhido: numeroParaUsar,
+      intervalo,
+      modo,
+    })
+
+    if (!validacao.valida) {
+      return { status: 'erro', mensagem: validacao.erro ?? 'Jogada inválida.' }
+    }
+
+    // Verificar paridade do jogador (apenas para PvP)
+    if (!ehIA) {
+      if (ehPrimeiro && !rodada.paridade_escolhida_pelo_primeiro) {
         return {
           status: 'erro',
-          mensagem: `No modo Caos, o número precisa estar entre ${intervaloCaos.minimo} e ${intervaloCaos.maximo}.`,
+          mensagem: 'Paridade do primeiro jogador não definida.',
+        }
+      }
+      if (ehSegundo && !rodada.paridade_escolhida_pelo_segundo) {
+        return {
+          status: 'erro',
+          mensagem: 'Paridade do segundo jogador não definida.',
         }
       }
     }
 
-    // Registrar jogada com idempotência (ON CONFLICT DO NOTHING)
+    // Registrar jogada com idempotência
     const camposAtualizar: Record<string, unknown> = {}
 
     if (ehPrimeiro) {
-      if (!rodada.paridade_escolhida_pelo_primeiro) {
-        return { status: 'erro', mensagem: 'Paridade do primeiro jogador não definida.' }
-      }
-      camposAtualizar.numero_do_primeiro_jogador = numeroEscolhido
+      camposAtualizar.numero_do_primeiro_jogador = numeroParaUsar
       camposAtualizar.token_de_idempotencia_do_primeiro = tokenDeIdempotencia
       camposAtualizar.jogada_do_primeiro_confirmada = true
     } else {
-      if (!rodada.paridade_escolhida_pelo_segundo) {
-        return { status: 'erro', mensagem: 'Paridade do segundo jogador não definida.' }
-      }
-      camposAtualizar.numero_do_segundo_jogador = numeroEscolhido
+      camposAtualizar.numero_do_segundo_jogador = numeroParaUsar
       camposAtualizar.token_de_idempotencia_do_segundo = tokenDeIdempotencia
       camposAtualizar.jogada_do_segundo_confirmada = true
     }
@@ -179,13 +270,17 @@ export async function confirmarJogada(
 
     // Broadcast jogada confirmada
     const channel = supabaseAdmin.channel(`partida:${idDaPartida}`)
+    const payloadBroadcast: Record<string, unknown> = {
+      idDoJogador: user?.id ?? 'ia',
+      numeroDaRodada,
+    }
+    if (timeoutAconteceu) {
+      payloadBroadcast.timeout = true
+    }
     await channel.send({
       type: 'broadcast',
       event: 'jogada_confirmada',
-      payload: {
-        idDoJogador: user.id,
-        numeroDaRodada,
-      },
+      payload: payloadBroadcast,
     })
 
     // Verificar se ambos jogaram
@@ -203,36 +298,77 @@ export async function confirmarJogada(
       rodadaAtualizada.jogada_do_primeiro_confirmada &&
       rodadaAtualizada.jogada_do_segundo_confirmada
 
+    // Se NÃO ambos jogaram e é modo IA, gerar jogada da IA automaticamente
     if (!ambosJogaram) {
-      return {
-        status: 'jogada_registrada',
-        dados: { numeroDaRodada },
+      if (ehIA) {
+        const paridadesExistentes =
+          rodadaAtualizada.paridade_escolhida_pelo_primeiro &&
+          rodadaAtualizada.paridade_escolhida_pelo_segundo
+
+        if (!paridadesExistentes) {
+          const totalRodadas = partida.total_de_rodadas_previsto as number
+          const paridadeInicial = obterParidadeInicial(partida)
+          const paridades = computarParidadesDaRodada(
+            numeroDaRodada,
+            paridadeInicial,
+            totalRodadas
+          )
+
+          if (paridades) {
+            await supabaseAdmin
+              .from('rodadas')
+              .update({
+                paridade_escolhida_pelo_primeiro: paridades.paridadeDoPrimeiro,
+                paridade_escolhida_pelo_segundo: paridades.paridadeDoSegundo,
+              })
+              .eq('id', rodadaAtualizada.id)
+            rodadaAtualizada.paridade_escolhida_pelo_primeiro =
+              paridades.paridadeDoPrimeiro
+            rodadaAtualizada.paridade_escolhida_pelo_segundo =
+              paridades.paridadeDoSegundo
+          }
+        }
+
+        const jogadaDaIa = gerarJogadaAleatoria(intervalo)
+
+        await supabaseAdmin
+          .from('rodadas')
+          .update({
+            numero_do_segundo_jogador: jogadaDaIa.numero,
+            jogada_do_segundo_confirmada: true,
+          })
+          .eq('id', rodadaAtualizada.id)
+
+        rodadaAtualizada.numero_do_segundo_jogador = jogadaDaIa.numero
+        rodadaAtualizada.jogada_do_segundo_confirmada = true
+      } else {
+        return {
+          status: 'jogada_registrada',
+          dados: { numeroDaRodada },
+        }
       }
     }
 
     // === AMBOS JOGARAM — CALCULAR RESULTADO ===
     const numeroPrimeiro = rodadaAtualizada.numero_do_primeiro_jogador as number
     const numeroSegundo = rodadaAtualizada.numero_do_segundo_jogador as number
-    const paridadeBruta = rodadaAtualizada.paridade_escolhida_pelo_primeiro
-    const paridadePrimeiro: Paridade =
-      paridadeBruta === 'par' || paridadeBruta === 'impar'
-        ? paridadeBruta
-        : 'par'
+    const paridadePrimeiro = obterParidadeComoParidade(
+      rodadaAtualizada.paridade_escolhida_pelo_primeiro
+    )
 
     let resultado: ReturnType<typeof calcularResultadoDaRodada>
-    let paridadeSorteada: 'par' | 'impar' | null = null
 
-    if (partida.modo === 'invisivel') {
-      // Modo Invisível: sorteia quem fica com Par
-      const resultadoInvisivel = calcularResultadoDoModoInvisivel(numeroPrimeiro, numeroSegundo)
+    if (modo === 'invisivel') {
+      const resultadoInvisivel = calcularResultadoDoModoInvisivel(
+        numeroPrimeiro,
+        numeroSegundo
+      )
       const soma = numeroPrimeiro + numeroSegundo
-      const paridadeReal = soma % 2 === 0 ? 'par' : 'impar'
       resultado = {
         somaDosNumeros: soma,
-        paridadeResultante: paridadeReal,
+        paridadeResultante: soma % 2 === 0 ? 'par' : 'impar',
         primeiroJogadorVenceu: resultadoInvisivel.primeiroJogadorVenceu,
       }
-      paridadeSorteada = resultadoInvisivel.paridadeSorteada
     } else {
       resultado = calcularResultadoDaRodada(
         numeroPrimeiro,
@@ -254,7 +390,7 @@ export async function confirmarJogada(
         soma_dos_numeros: resultado.somaDosNumeros,
         paridade_resultante: resultado.paridadeResultante,
       })
-      .eq('id', rodada.id)
+      .eq('id', rodadaAtualizada.id)
 
     const dadosRodadaFinalizada: DadosDaRodadaFinalizada = {
       numeroDaRodada,
@@ -264,7 +400,7 @@ export async function confirmarJogada(
       primeiroJogadorVenceu: resultado.primeiroJogadorVenceu,
     }
 
-    // Calcular pontuação atual (melhor de 3)
+    // Calcular pontuação atual (melhor de N)
     const { data: rodadasDaPartida } = await supabaseAdmin
       .from('rodadas')
       .select('vencedor_id')
@@ -285,183 +421,23 @@ export async function confirmarJogada(
     const totalRodadasPrevisto = partida.total_de_rodadas_previsto as 1 | 3 | 5 | 7
     const vitoriasNecessarias = Math.ceil(totalRodadasPrevisto / 2)
     const partidaFinalizada =
-      pontuacaoPrimeiro >= vitoriasNecessarias || pontuacaoSegundo >= vitoriasNecessarias
+      pontuacaoPrimeiro >= vitoriasNecessarias ||
+      pontuacaoSegundo >= vitoriasNecessarias
 
     if (partidaFinalizada) {
-      // === PARTIDA FINALIZADA ===
-      const vencedorFinalId =
-        pontuacaoPrimeiro >= vitoriasNecessarias
-          ? partida.id_do_primeiro_jogador
-          : partida.id_do_segundo_jogador
-
-      const perdedorFinalId =
-        vencedorFinalId === partida.id_do_primeiro_jogador
-          ? partida.id_do_segundo_jogador
-          : partida.id_do_primeiro_jogador
-
-      // Calcular Elo
-      const { data: perfilVencedor } = await supabaseAdmin
-        .from('perfis')
-        .select('elo, total_de_vitorias, total_de_partidas, sequencia_atual')
-        .eq('id_usuario', vencedorFinalId)
-        .single()
-
-      const { data: perfilPerdedor } = await supabaseAdmin
-        .from('perfis')
-        .select('elo, total_de_derrotas, total_de_partidas, sequencia_atual')
-        .eq('id_usuario', perdedorFinalId)
-        .single()
-
-      const eloVencedor = (perfilVencedor?.elo as number) ?? 1200
-      const eloPerdedor = (perfilPerdedor?.elo as number) ?? 1200
-
-      const { novoEloDoVencedor, novoEloDoPerdedor } = calcularElo(
-        eloVencedor,
-        eloPerdedor,
-        K_FACTOR_PADRAO
-      )
-
-      // Atualizar partida
-      await supabaseAdmin
-        .from('partidas')
-        .update({
-          status: 'finalizada',
-          vencedor_id: vencedorFinalId,
-          rodada_atual: numeroDaRodada,
-        })
-        .eq('id', idDaPartida)
-
-      // Atualizar perfis dos jogadores
-      await supabaseAdmin
-        .from('perfis')
-        .update({
-          elo: novoEloDoVencedor,
-          total_de_vitorias: (perfilVencedor?.total_de_vitorias as number ?? 0) + 1,
-          total_de_partidas: (perfilVencedor?.total_de_partidas as number ?? 0) + 1,
-          sequencia_atual: (perfilVencedor?.sequencia_atual as number ?? 0) + 1,
-        })
-        .eq('id_usuario', vencedorFinalId)
-
-      await supabaseAdmin
-        .from('perfis')
-        .update({
-          elo: novoEloDoPerdedor,
-          total_de_derrotas: (perfilPerdedor?.total_de_derrotas as number ?? 0) + 1,
-          total_de_partidas: (perfilPerdedor?.total_de_partidas as number ?? 0) + 1,
-          sequencia_atual: 0,
-        })
-        .eq('id_usuario', perdedorFinalId)
-
-      // Verificar conquistas para o vencedor (após atualizar estatísticas)
-      const { conquistasNovas } = await verificarConquistas(vencedorFinalId)
-
-      // Broadcast fim da partida
-      await channel.send({
-        type: 'broadcast',
-        event: 'fim_da_partida',
-        payload: {
-          vencedorId: vencedorFinalId,
-          eloGanho: novoEloDoVencedor - eloVencedor,
-          eloPerdido: eloPerdedor - novoEloDoPerdedor,
-          novoEloVencedor: novoEloDoVencedor,
-          novoEloPerdedor: novoEloDoPerdedor,
-          pontuacaoPrimeiro,
-          pontuacaoSegundo,
-          conquistasNovas,
-        },
+      return await finalizarPartida({
+        supabaseAdmin,
+        channel,
+        partida,
+        ehIA,
+        user,
+        idDaPartida,
+        numeroDaRodada,
+        pontuacaoPrimeiro,
+        pontuacaoSegundo,
+        vitoriasNecessarias,
+        dadosRodadaFinalizada,
       })
-
-      // === SALVAR REPLAY ===
-      try {
-        // Buscar todas as rodadas completas para o replay
-        const { data: rodadasCompletas } = await supabaseAdmin
-          .from('rodadas')
-          .select('numero_da_rodada, numero_do_primeiro_jogador, paridade_escolhida_pelo_primeiro, numero_do_segundo_jogador, paridade_escolhida_pelo_segundo, vencedor_id, soma_dos_numeros, paridade_resultante')
-          .eq('id_da_partida', idDaPartida)
-          .eq('resultado_calculado', true)
-
-        // Buscar perfis dos jogadores
-        const { data: perfilPrimeiro } = await supabaseAdmin
-          .from('perfis')
-          .select('id_usuario, nome, elo, url_do_avatar')
-          .eq('id_usuario', partida.id_do_primeiro_jogador)
-          .single()
-
-        const { data: perfilSegundo } = await supabaseAdmin
-          .from('perfis')
-          .select('id_usuario, nome, elo, url_do_avatar')
-          .eq('id_usuario', partida.id_do_segundo_jogador)
-          .single()
-
-        if (rodadasCompletas && perfilPrimeiro && perfilSegundo) {
-          const rodadasDoReplay: RodadaDoReplay[] = rodadasCompletas
-            .filter((r) => r.numero_do_primeiro_jogador != null && r.numero_do_segundo_jogador != null)
-            .map((r) => ({
-              numero: r.numero_da_rodada as number,
-              jogadaPrimeiro: {
-                numero: r.numero_do_primeiro_jogador as number,
-                paridade: (r.paridade_escolhida_pelo_primeiro as 'par' | 'impar') ?? 'par',
-              },
-              jogadaSegundo: {
-                numero: r.numero_do_segundo_jogador as number,
-                paridade: (r.paridade_escolhida_pelo_segundo as 'par' | 'impar') ?? 'par',
-              },
-              resultado: {
-                soma: r.soma_dos_numeros as number,
-                paridadeResultante: (r.paridade_resultante as 'par' | 'impar') ?? 'par',
-                vencedorId: r.vencedor_id as string,
-              },
-            }))
-
-          const primeiroJogador: JogadorDoReplay = {
-            id: perfilPrimeiro.id_usuario as string,
-            nome: perfilPrimeiro.nome as string,
-            elo: (perfilPrimeiro.elo as number) ?? 1200,
-            avatar: perfilPrimeiro.url_do_avatar as string | null,
-          }
-
-          const segundoJogador: JogadorDoReplay = {
-            id: perfilSegundo.id_usuario as string,
-            nome: perfilSegundo.nome as string,
-            elo: (perfilSegundo.elo as number) ?? 1200,
-            avatar: perfilSegundo.url_do_avatar as string | null,
-          }
-
-          const dadosDoReplay: DadosDoReplay = {
-            partida: {
-              id: idDaPartida,
-              modo: partida.modo as string,
-              tipo: partida.tipo as string,
-              totalDeRodadas: partida.total_de_rodadas_previsto as number,
-            },
-            jogadores: [primeiroJogador, segundoJogador],
-            rodadas: rodadasDoReplay,
-            vencedorId: vencedorFinalId!,
-            data: new Date().toISOString(),
-          }
-
-          await salvarReplay(idDaPartida, dadosDoReplay)
-        }
-      } catch (erroReplay) {
-        console.error('Erro ao salvar replay:', erroReplay)
-        // Não quebrar o fluxo da partida por causa do replay
-      }
-
-      return {
-        status: 'partida_finalizada',
-        dados: dadosRodadaFinalizada,
-        partidaFinalizada: true,
-        resultado: {
-          vencedorId: vencedorFinalId!,
-          eloGanho: novoEloDoVencedor - eloVencedor,
-          eloPerdido: eloPerdedor - novoEloDoPerdedor,
-          novoEloVencedor: novoEloDoVencedor,
-          novoEloPerdedor: novoEloDoPerdedor,
-          pontuacaoPrimeiro,
-          pontuacaoSegundo,
-          conquistasNovas,
-        },
-      }
     }
 
     // === PARTIDA CONTINUA — AVANÇAR RODADA ===
@@ -472,50 +448,59 @@ export async function confirmarJogada(
       .update({ rodada_atual: proximaRodada })
       .eq('id', idDaPartida)
 
-    // Criar próxima rodada com paridade automática
-    const paridadeInicialValue = partida.paridade_inicial_do_primeiro
-    const paridadeInicial: Paridade =
-      paridadeInicialValue === 'par' || paridadeInicialValue === 'impar'
-        ? paridadeInicialValue
-        : sortearParidadeInicial()
-    const totalRodadas = partida.total_de_rodadas_previsto as number
+    const paridadeInicial = obterParidadeInicial(partida)
     const atribuicao = atribuirParidadeDaRodada(
       proximaRodada,
       paridadeInicial,
-      totalRodadas
+      totalRodadasPrevisto
     )
 
     if ('desempate' in atribuicao) {
-      // Desempate: criar rodada sem paridades, depois vencedor da R1 escolhe
-      await supabaseAdmin.from('rodadas').insert({
-        id_da_partida: idDaPartida,
-        numero_da_rodada: proximaRodada,
-      })
-
-      // Descobrir quem venceu a R1
-      const { data: rodada1 } = await supabaseAdmin
+      await supabaseAdmin
         .from('rodadas')
-        .select('vencedor_id')
-        .eq('id_da_partida', idDaPartida)
-        .eq('numero_da_rodada', 1)
-        .single()
+        .insert({
+          id_da_partida: idDaPartida,
+          numero_da_rodada: proximaRodada,
+        })
 
-      // Broadcast pedindo escolha de paridade
-      await channel.send({
-        type: 'broadcast',
-        event: 'escolher_paridade_do_desempate',
-        payload: {
-          idDoVencedorDaPrimeiraRodada: rodada1?.vencedor_id,
-          numeroDaRodada: proximaRodada,
-        },
-      })
+      if (ehIA) {
+        const paridadeDaIa: Paridade =
+          Math.random() < 0.5 ? 'par' : 'impar'
+        await supabaseAdmin
+          .from('rodadas')
+          .update({
+            paridade_escolhida_pelo_primeiro:
+              paridadeDaIa === 'par' ? 'impar' : 'par',
+            paridade_escolhida_pelo_segundo: paridadeDaIa,
+          })
+          .eq('id_da_partida', idDaPartida)
+          .eq('numero_da_rodada', proximaRodada)
+      } else {
+        const { data: rodada1 } = await supabaseAdmin
+          .from('rodadas')
+          .select('vencedor_id')
+          .eq('id_da_partida', idDaPartida)
+          .eq('numero_da_rodada', 1)
+          .single()
+
+        await channel.send({
+          type: 'broadcast',
+          event: 'escolher_paridade_do_desempate',
+          payload: {
+            idDoVencedorDaPrimeiraRodada: rodada1?.vencedor_id,
+            numeroDaRodada: proximaRodada,
+          },
+        })
+      }
     } else {
-      await supabaseAdmin.from('rodadas').insert({
-        id_da_partida: idDaPartida,
-        numero_da_rodada: proximaRodada,
-        paridade_escolhida_pelo_primeiro: atribuicao.paridadeDoPrimeiro,
-        paridade_escolhida_pelo_segundo: atribuicao.paridadeDoSegundo,
-      })
+      await supabaseAdmin
+        .from('rodadas')
+        .insert({
+          id_da_partida: idDaPartida,
+          numero_da_rodada: proximaRodada,
+          paridade_escolhida_pelo_primeiro: atribuicao.paridadeDoPrimeiro,
+          paridade_escolhida_pelo_segundo: atribuicao.paridadeDoSegundo,
+        })
     }
 
     // Broadcast resultado da rodada
@@ -537,5 +522,292 @@ export async function confirmarJogada(
   } catch (erro) {
     console.error('Erro ao confirmar jogada:', erro)
     return { status: 'erro', mensagem: 'Erro inesperado ao confirmar jogada.' }
+  }
+}
+
+interface ParametrosFinalizarPartida {
+  supabaseAdmin: ReturnType<typeof criarClienteServidorAdmin>
+  channel: ReturnType<ReturnType<typeof criarClienteServidorAdmin>['channel']>
+  partida: Record<string, unknown>
+  ehIA: boolean
+  user: { id: string } | null
+  idDaPartida: string
+  numeroDaRodada: number
+  pontuacaoPrimeiro: number
+  pontuacaoSegundo: number
+  vitoriasNecessarias: number
+  dadosRodadaFinalizada: DadosDaRodadaFinalizada
+}
+
+async function finalizarPartida(
+  params: ParametrosFinalizarPartida
+): Promise<ResultadoConfirmarJogada> {
+  const {
+    supabaseAdmin,
+    channel,
+    partida,
+    ehIA,
+    user,
+    idDaPartida,
+    numeroDaRodada,
+    pontuacaoPrimeiro,
+    pontuacaoSegundo,
+    vitoriasNecessarias,
+    dadosRodadaFinalizada,
+  } = params
+
+  const vencedorFinalId = (
+    pontuacaoPrimeiro >= vitoriasNecessarias
+      ? partida.id_do_primeiro_jogador
+      : partida.id_do_segundo_jogador
+  ) as string | null
+
+  const perdedorFinalId = (
+    vencedorFinalId === partida.id_do_primeiro_jogador
+      ? partida.id_do_segundo_jogador
+      : partida.id_do_primeiro_jogador
+  ) as string | null
+
+  // Atualizar partida
+  await supabaseAdmin
+    .from('partidas')
+    .update({
+      status: 'finalizada',
+      vencedor_id: vencedorFinalId,
+      rodada_atual: numeroDaRodada,
+    })
+    .eq('id', idDaPartida)
+
+  let eloGanho = 0
+  let eloPerdido = 0
+  let novoEloVencedor = 0
+  let novoEloPerdedor = 0
+  let conquistasNovas: ConquistaNova[] = []
+
+  // PvP: calcular Elo, atualizar perfis, verificar conquistas, salvar replay
+  if (!ehIA && user && vencedorFinalId && perdedorFinalId) {
+    const resultadoElos = await processarEloEAchievements(
+      supabaseAdmin,
+      vencedorFinalId,
+      perdedorFinalId
+    )
+    eloGanho = resultadoElos.eloGanho
+    eloPerdido = resultadoElos.eloPerdido
+    novoEloVencedor = resultadoElos.novoEloVencedor
+    novoEloPerdedor = resultadoElos.novoEloPerdedor
+    conquistasNovas = resultadoElos.conquistasNovas
+
+    await salvarReplayDaPartida(
+      supabaseAdmin,
+      idDaPartida,
+      partida,
+      vencedorFinalId
+    )
+  }
+
+  // Limpar dados se anônimo
+  if (!user) {
+    await supabaseAdmin.from('rodadas').delete().eq('id_da_partida', idDaPartida)
+    await supabaseAdmin.from('partidas').delete().eq('id', idDaPartida)
+  }
+
+  // Broadcast fim da partida
+  await channel.send({
+    type: 'broadcast',
+    event: 'fim_da_partida',
+    payload: {
+      vencedorId: vencedorFinalId,
+      eloGanho,
+      eloPerdido,
+      novoEloVencedor,
+      novoEloPerdedor,
+      pontuacaoPrimeiro,
+      pontuacaoSegundo,
+      conquistasNovas,
+    },
+  })
+
+  return {
+    status: 'partida_finalizada',
+    dados: dadosRodadaFinalizada,
+    partidaFinalizada: true,
+    resultado: {
+      vencedorId: vencedorFinalId!,
+      eloGanho,
+      eloPerdido,
+      novoEloVencedor,
+      novoEloPerdedor,
+      pontuacaoPrimeiro,
+      pontuacaoSegundo,
+      conquistasNovas:
+        conquistasNovas.length > 0 ? conquistasNovas : undefined,
+    },
+  }
+}
+
+interface ResultadoProcessarElo {
+  eloGanho: number
+  eloPerdido: number
+  novoEloVencedor: number
+  novoEloPerdedor: number
+  conquistasNovas: ConquistaNova[]
+}
+
+async function processarEloEAchievements(
+  supabaseAdmin: ReturnType<typeof criarClienteServidorAdmin>,
+  vencedorId: string,
+  perdedorId: string
+): Promise<ResultadoProcessarElo> {
+  const { data: perfilVencedor } = await supabaseAdmin
+    .from('perfis')
+    .select('elo, total_de_vitorias, total_de_partidas, sequencia_atual')
+    .eq('id_usuario', vencedorId)
+    .single()
+
+  const { data: perfilPerdedor } = await supabaseAdmin
+    .from('perfis')
+    .select('elo, total_de_derrotas, total_de_partidas, sequencia_atual')
+    .eq('id_usuario', perdedorId)
+    .single()
+
+  const eloVencedor = (perfilVencedor?.elo as number) ?? 1200
+  const eloPerdedor = (perfilPerdedor?.elo as number) ?? 1200
+
+  const { novoEloDoVencedor, novoEloDoPerdedor } = calcularElo(
+    eloVencedor,
+    eloPerdedor,
+    K_FACTOR_PADRAO
+  )
+
+  await supabaseAdmin
+    .from('perfis')
+    .update({
+      elo: novoEloDoVencedor,
+      total_de_vitorias:
+        ((perfilVencedor?.total_de_vitorias as number) ?? 0) + 1,
+      total_de_partidas:
+        ((perfilVencedor?.total_de_partidas as number) ?? 0) + 1,
+      sequencia_atual:
+        ((perfilVencedor?.sequencia_atual as number) ?? 0) + 1,
+    })
+    .eq('id_usuario', vencedorId)
+
+  await supabaseAdmin
+    .from('perfis')
+    .update({
+      elo: novoEloDoPerdedor,
+      total_de_derrotas:
+        ((perfilPerdedor?.total_de_derrotas as number) ?? 0) + 1,
+      total_de_partidas:
+        ((perfilPerdedor?.total_de_partidas as number) ?? 0) + 1,
+      sequencia_atual: 0,
+    })
+    .eq('id_usuario', perdedorId)
+
+  const resultadoConquistas = await verificarConquistas(vencedorId)
+
+  return {
+    eloGanho: novoEloDoVencedor - eloVencedor,
+    eloPerdido: eloPerdedor - novoEloDoPerdedor,
+    novoEloVencedor: novoEloDoVencedor,
+    novoEloPerdedor: novoEloDoPerdedor,
+    conquistasNovas: resultadoConquistas.conquistasNovas,
+  }
+}
+
+async function salvarReplayDaPartida(
+  supabaseAdmin: ReturnType<typeof criarClienteServidorAdmin>,
+  idDaPartida: string,
+  partida: Record<string, unknown>,
+  vencedorId: string
+): Promise<void> {
+  try {
+    const { data: rodadasCompletas } = await supabaseAdmin
+      .from('rodadas')
+      .select(
+        'numero_da_rodada, numero_do_primeiro_jogador, paridade_escolhida_pelo_primeiro, numero_do_segundo_jogador, paridade_escolhida_pelo_segundo, vencedor_id, soma_dos_numeros, paridade_resultante'
+      )
+      .eq('id_da_partida', idDaPartida)
+      .eq('resultado_calculado', true)
+
+    if (!rodadasCompletas || rodadasCompletas.length === 0) {
+      return
+    }
+
+    const { data: perfilPrimeiro } = await supabaseAdmin
+      .from('perfis')
+      .select('id_usuario, nome, elo, url_do_avatar')
+      .eq('id_usuario', partida.id_do_primeiro_jogador)
+      .single()
+
+    const { data: perfilSegundo } = await supabaseAdmin
+      .from('perfis')
+      .select('id_usuario, nome, elo, url_do_avatar')
+      .eq('id_usuario', partida.id_do_segundo_jogador)
+      .single()
+
+    if (!perfilPrimeiro || !perfilSegundo) {
+      return
+    }
+
+    const rodadasDoReplay: RodadaDoReplay[] = rodadasCompletas
+      .filter(
+        (r) =>
+          r.numero_do_primeiro_jogador != null &&
+          r.numero_do_segundo_jogador != null
+      )
+      .map((r) => ({
+        numero: r.numero_da_rodada as number,
+        jogadaPrimeiro: {
+          numero: r.numero_do_primeiro_jogador as number,
+          paridade: obterParidadeComoParidade(
+            r.paridade_escolhida_pelo_primeiro
+          ),
+        },
+        jogadaSegundo: {
+          numero: r.numero_do_segundo_jogador as number,
+          paridade: obterParidadeComoParidade(
+            r.paridade_escolhida_pelo_segundo
+          ),
+        },
+        resultado: {
+          soma: r.soma_dos_numeros as number,
+          paridadeResultante: obterParidadeComoParidade(
+            r.paridade_resultante
+          ),
+          vencedorId: r.vencedor_id as string,
+        },
+      }))
+
+    const primeiroJogador: JogadorDoReplay = {
+      id: perfilPrimeiro.id_usuario as string,
+      nome: perfilPrimeiro.nome as string,
+      elo: (perfilPrimeiro.elo as number) ?? 1200,
+      avatar: (perfilPrimeiro.url_do_avatar as string | null) ?? null,
+    }
+
+    const segundoJogador: JogadorDoReplay = {
+      id: perfilSegundo.id_usuario as string,
+      nome: perfilSegundo.nome as string,
+      elo: (perfilSegundo.elo as number) ?? 1200,
+      avatar: (perfilSegundo.url_do_avatar as string | null) ?? null,
+    }
+
+    const dadosDoReplay: DadosDoReplay = {
+      partida: {
+        id: idDaPartida,
+        modo: partida.modo as string,
+        tipo: partida.tipo as string,
+        totalDeRodadas: partida.total_de_rodadas_previsto as number,
+      },
+      jogadores: [primeiroJogador, segundoJogador],
+      rodadas: rodadasDoReplay,
+      vencedorId: vencedorId,
+      data: new Date().toISOString(),
+    }
+
+    await salvarReplay(idDaPartida, dadosDoReplay)
+  } catch (erroReplay) {
+    console.error('Erro ao salvar replay:', erroReplay)
   }
 }
