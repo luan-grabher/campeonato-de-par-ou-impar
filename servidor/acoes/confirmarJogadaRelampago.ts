@@ -7,12 +7,12 @@ import { calcularResultadoDaRodada } from '@/core/calculo/calcularResultadoDaRod
 import { calcularElo } from '@/core/calculo/calcularElo'
 import { INTERVALO_TRADICIONAL } from '@/core/constantes/intervalosDeNumeros'
 import { K_FACTOR_PADRAO } from '@/core/constantes/pontuacao'
+import { atribuirParidadeDaRodada } from '@/core/calculo/atribuirParidade'
 
 interface EntradaConfirmarJogadaRelampago {
   idDaPartida: string
   numeroDaRodada: number
   numeroEscolhido: number
-  paridadeEscolhida: 'par' | 'impar'
   tokenDeIdempotencia: string
   /** true se o cliente atingiu o timeout e está enviando uma jogada automática */
   timeoutNoCliente?: boolean
@@ -60,14 +60,13 @@ const ACAO_AO_TIMEOUT: 'escolha_aleatoria' | 'derrota_automatica' = 'escolha_ale
 function gerarJogadaAleatoriaRelampago() {
   return {
     numero: Math.floor(Math.random() * 2) + 1,
-    paridade: (Math.random() < 0.5 ? 'par' : 'impar') as 'par' | 'impar',
   }
 }
 
 export async function confirmarJogadaRelampago(
   entrada: EntradaConfirmarJogadaRelampago
 ): Promise<ResultadoConfirmarJogadaRelampago> {
-  const { idDaPartida, numeroDaRodada, numeroEscolhido, paridadeEscolhida, tokenDeIdempotencia } =
+  const { idDaPartida, numeroDaRodada, numeroEscolhido, tokenDeIdempotencia } =
     entrada
 
   try {
@@ -130,9 +129,17 @@ export async function confirmarJogadaRelampago(
       return { status: 'erro', mensagem: 'Você já jogou esta rodada.' }
     }
 
+    // Obter paridade pré-definida da rodada para o jogador
+    const paridadeDoJogador = ehPrimeiro
+      ? (rodada.paridade_escolhida_pelo_primeiro as 'par' | 'impar' | null)
+      : (rodada.paridade_escolhida_pelo_segundo as 'par' | 'impar' | null)
+
+    if (!paridadeDoJogador) {
+      return { status: 'erro', mensagem: 'Paridade não definida para esta rodada.' }
+    }
+
     // === SERVER-SIDE TIMEOUT CHECK ===
     let numeroParaUsar = numeroEscolhido
-    let paridadeParaUsar = paridadeEscolhida
     let timeoutAconteceu = false
 
     // Verificar o created_at da rodada para detectar timeout
@@ -151,7 +158,6 @@ export async function confirmarJogadaRelampago(
       if (ACAO_AO_TIMEOUT === 'escolha_aleatoria') {
         const jogadaAleatoria = gerarJogadaAleatoriaRelampago()
         numeroParaUsar = jogadaAleatoria.numero
-        paridadeParaUsar = jogadaAleatoria.paridade
       }
     }
 
@@ -172,12 +178,10 @@ export async function confirmarJogadaRelampago(
 
     if (ehPrimeiro) {
       camposAtualizar.numero_do_primeiro_jogador = numeroParaUsar
-      camposAtualizar.paridade_escolhida_pelo_primeiro = paridadeParaUsar
       camposAtualizar.token_de_idempotencia_do_primeiro = tokenDeIdempotencia
       camposAtualizar.jogada_do_primeiro_confirmada = true
     } else {
       camposAtualizar.numero_do_segundo_jogador = numeroParaUsar
-      camposAtualizar.paridade_escolhida_pelo_segundo = paridadeParaUsar
       camposAtualizar.token_de_idempotencia_do_segundo = tokenDeIdempotencia
       camposAtualizar.jogada_do_segundo_confirmada = true
     }
@@ -386,11 +390,44 @@ export async function confirmarJogadaRelampago(
       .update({ rodada_atual: proximaRodada })
       .eq('id', idDaPartida)
 
-    // Criar próxima rodada
-    await supabaseAdmin.from('rodadas').insert({
-      id_da_partida: idDaPartida,
-      numero_da_rodada: proximaRodada,
-    })
+    // Calcular paridade para a próxima rodada
+    const paridadePrimeiroNaRodadaAtual = rodadaAtualizada.paridade_escolhida_pelo_primeiro as 'par' | 'impar'
+
+    // Derivar paridade inicial do primeiro jogador (rodada 1) a partir da rodada atual
+    const paridadeInicialDoPrimeiro: 'par' | 'impar' =
+      numeroDaRodada % 2 === 0
+        ? (paridadePrimeiroNaRodadaAtual === 'par' ? 'impar' : 'par')
+        : paridadePrimeiroNaRodadaAtual
+
+    const atribuicao = atribuirParidadeDaRodada(
+      proximaRodada,
+      paridadeInicialDoPrimeiro,
+      totalRodadasPrevisto
+    )
+
+    if ('desempate' in atribuicao) {
+      // No modo relâmpago, mesmo rodadas de desempate recebem paridade automática
+      const paridadeDoPrimeiro: 'par' | 'impar' =
+        proximaRodada % 2 === 0
+          ? (paridadeInicialDoPrimeiro === 'par' ? 'impar' : 'par')
+          : paridadeInicialDoPrimeiro
+      const paridadeDoSegundo: 'par' | 'impar' =
+        paridadeDoPrimeiro === 'par' ? 'impar' : 'par'
+
+      await supabaseAdmin.from('rodadas').insert({
+        id_da_partida: idDaPartida,
+        numero_da_rodada: proximaRodada,
+        paridade_escolhida_pelo_primeiro: paridadeDoPrimeiro,
+        paridade_escolhida_pelo_segundo: paridadeDoSegundo,
+      })
+    } else {
+      await supabaseAdmin.from('rodadas').insert({
+        id_da_partida: idDaPartida,
+        numero_da_rodada: proximaRodada,
+        paridade_escolhida_pelo_primeiro: atribuicao.paridadeDoPrimeiro,
+        paridade_escolhida_pelo_segundo: atribuicao.paridadeDoSegundo,
+      })
+    }
 
     // Broadcast resultado da rodada
     await channel.send({
