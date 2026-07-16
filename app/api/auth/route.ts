@@ -19,6 +19,7 @@ export async function POST(req: NextRequest) {
         const formData = new FormData()
         formData.set('email', email)
         formData.set('senha', senha)
+        formData.set('confirmacaoSenha', senha)
         formData.set('nome', nome)
         const resultado = await cadastrarUsuario(null, formData)
         return NextResponse.json(resultado)
